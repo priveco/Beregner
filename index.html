@@ -15,7 +15,6 @@ body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg);
 h1, .subtitle { text-align: center; margin-bottom: 5px; }
 .subtitle { color: #666; margin-bottom: 30px; }
 
-/* REGLER FOR INPUTBOKS: Sørger for at den IKKE fylder hele venstre side */
 .main-layout { display: grid; grid-template-columns: 1fr; gap: 25px; align-items: start; }
 @media (min-width: 768px) { .main-layout { grid-template-columns: 320px 1fr; } }
 
@@ -47,7 +46,6 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
     <p class="subtitle">Beregn dine månedlige ydelser og se din præcise gevinst ved at afdrage ekstraordinært.</p>
 
     <div class="main-layout">
-        <!-- Kompakt inputpanel i venstre side -->
         <div class="card">
             <div class="card-title">Indtast lånedata</div>
             
@@ -72,7 +70,6 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
             <button onclick="calculate()">Beregn nu</button>
         </div>
 
-        <!-- Resultatpaneler i højre side -->
         <div>
             <div class="card">
                 <div class="card-title">Oversigt over lånets omkostninger</div>
@@ -81,7 +78,9 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
             
             <div id="chart-box" class="card" style="display:none;">
                 <div class="card-title">Afvikling af restgæld over tid</div>
-                <canvas id="loanChart" style="max-height: 320px; width: 100%;"></canvas>
+                <div style="position: relative; height:320px; width:100%;">
+                    <canvas id="loanChart"></canvas>
+                </div>
             </div>
             
             <div id="schedule-box" class="table-container" style="display:none;">
@@ -161,14 +160,12 @@ function calculate() {
     let rText = Math.floor(simExtra.mCount/12) + " år og " + (simExtra.mCount%12) + " mdr.";
     if (simExtra.mCount === totalMonths) rText = years + " år";
 
-    document.getElementById("result").innerHTML = `
-        <div class="result-grid">
-            <div class="result-block"><div class="result-label">Månedlig ordinær ydelse</div><div class="result-value">\${formatDKK(simExtra.pmt)}</div></div>
-            <div class="result-block"><div class="result-label">Samlede Renter</div><div class="result-value" style="color:#c62828;">\${formatDKK(simExtra.totInt)}</div></div>
-            <div class="result-block success"><div class="result-label">Est. Rentefradrag</div><div class="result-value text-success">\${formatDKK(simExtra.totDed)}</div></div>
-            <div class="result-block"><div class="result-label">Reel løbetid</div><div class="result-value">\${rText}</div></div>
-        </div>
-    `;
+    let resultHTML = '<div class="result-grid">' +
+        '<div class="result-block"><div class="result-label">Månedlig ordinær ydelse</div><div class="result-value">' + formatDKK(simExtra.pmt) + '</div></div>' +
+        '<div class="result-block"><div class="result-label">Samlede Renter</div><div class="result-value" style="color:#c62828;">' + formatDKK(simExtra.totInt) + '</div></div>' +
+        '<div class="result-block success"><div class="result-label">Est. Rentefradrag</div><div class="result-value text-success">' + formatDKK(simExtra.totDed) + '</div></div>' +
+        '<div class="result-block"><div class="result-label">Reel løbetid</div><div class="result-value">' + rText + '</div></div>' +
+    '</div>';
 
     if (extra > 0) {
         let renteBesparelse = simNormal.totInt - simExtra.totInt;
@@ -182,22 +179,30 @@ function calculate() {
 
         if (renteBesparelse > 0 || mdrSparet > 0) {
             let typeNavn = extraType === 'monthly' ? 'at indbetale ' + formatDKK(extra) + ' ekstra hver måned' : 'at lave en her-og-nu indbetaling på ' + formatDKK(extra);
-            document.getElementById("result").innerHTML += `
-                <div class="savings-box">
-                    <h3 style="margin:0 0 5px 0; color:var(--success); font-size:1.1rem;">🎉 Økonomisk gevinst ved denne manøvre:</h3>
-                    <p style="margin:0; font-size:0.95rem;">
-                        Ved \${typeNavn}, sparer du i alt 
-                        <span class="text-success" style="font-size:1.1rem;"><b>\${formatDKK(renteBesparelse)}</b></span> i renteudgifter til banken, 
-                        og du bliver gældfri <span class="text-success"><b>\${tidsText}</b></span> før tid!
-                    </p>
-                </div>
-            `;
+            resultHTML += '<div class="savings-box">' +
+                '<h3 style="margin:0 0 5px 0; color:var(--success); font-size:1.1rem;">🎉 Økonomisk gevinst ved denne manøvre:</h3>' +
+                '<p style="margin:0; font-size:0.95rem;">' +
+                    'Ved ' + typeNavn + ', sparer du i alt ' +
+                    '<span class="text-success" style="font-size:1.1rem;"><b>' + formatDKK(renteBesparelse) + '</b></span> i renteudgifter til banken, ' +
+                    'og du bliver gældfri <span class="text-success"><b>' + tidsText + '</b></span> før tid!' +
+                '</p>' +
+            '</div>';
         }
     }
+    
+    document.getElementById("result").innerHTML = resultHTML;
 
     let html = "";
     simExtra.yData.forEach(function(r) {
-        html += `<tr><td style="text-align:center;font-weight:bold;">År \${r.y}</td><td>\${formatDKK(r.p)}</td><td style="\${r.e>0?'color:var(--primary);font-weight:600;':''}">\${formatDKK(r.e)}</td><td>\${formatDKK(r.i)}</td><td class="text-success">\${formatDKK(r.d)}</td><td><b>\${formatDKK(r.r)}</b></td></tr>`;
+        let extraStyle = r.e > 0 ? 'color:var(--primary);font-weight:600;' : '';
+        html += '<tr>' +
+            '<td style="text-align:center;font-weight:bold;">År ' + r.y + '</td>' +
+            '<td>' + formatDKK(r.p) + '</td>' +
+            '<td style="' + extraStyle + '">' + formatDKK(r.e) + '</td>' +
+            '<td>' + formatDKK(r.i) + '</td>' +
+            '<td class="text-success">' + formatDKK(r.d) + '</td>' +
+            '<td><b>' + formatDKK(r.r) + '</b></td>' +
+        '</tr>';
     });
     document.getElementById("schedule-body").innerHTML = html;
     document.getElementById("schedule-box").style.display = "block";
@@ -211,8 +216,30 @@ function calculate() {
     
     myChart = new Chart(ctx, {
         type: 'line',
-        data: { labels: cLabels, datasets: [{ label: 'Restgæld (kr.)', data: simExtra.cData, borderColor: '#005ea6', backgroundColor: 'rgba(0, 94, 166, 0.1)', fill: true, tension: 0.1, borderWidth: 3 }] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function(val) { return val.toLocaleString('da-DK') + ' kr.'; } } } } }
+        data: { 
+            labels: cLabels, 
+            datasets: [{ 
+                label: 'Restgæld (kr.)', 
+                data: simExtra.cData, 
+                borderColor: '#005ea6', 
+                backgroundColor: 'rgba(0, 94, 166, 0.1)', 
+                fill: true, 
+                tension: 0.1, 
+                borderWidth: 3 
+            }] 
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            scales: { 
+                y: { 
+                    beginAtZero: true, 
+                    ticks: { 
+                        callback: function(val) { return val.toLocaleString('da-DK') + ' kr.'; } 
+                    } 
+                } 
+            } 
+        }
     });
 }
 calculate();
