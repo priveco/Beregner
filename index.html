@@ -60,6 +60,12 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
                 
                 <label for="years">Løbetid (år)</label>
                 <input id="years" type="number" value="30">
+
+                <label for="frequency">Afdragsfrekvens</label>
+                <select id="frequency">
+                    <option value="12">Månedlig (12 gange om året)</option>
+                    <option value="4">Kvartalsmæssig (4 gange om året)</option>
+                </select>
             </div>
 
             <!-- KASSE 2: Valgfri ekstraordinær indbetaling -->
@@ -68,17 +74,17 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
                 
                 <label for="extraType">Frekvens af ekstra afdrag</label>
                 <select id="extraType">
-                    <option value="monthly">Hver måned (Fast beløb)</option>
+                    <option value="monthly">Hver termin (Fast beløb)</option>
                     <option value="onetime">Engangsbeløb (Her og nu)</option>
                 </select>
                 
                 <label for="extra">Ekstraordinært beløb (kr.)</label>
-                <input id="extra" type="number" value="0"> <!-- Sat til 0 kr. som standard -->
+                <input id="extra" type="number" value="0">
 
                 <label for="strategy">Bankens strategi efter afdrag</label>
                 <select id="strategy">
-                    <option value="shorten">Afkort løbetid (Behold samme månedlige ydelse)</option>
-                    <option value="lower_payment">Sænk månedlig ydelse (Fasthold slutdato)</option>
+                    <option value="shorten">Afkort løbetid (Behold samme terminsydelse)</option>
+                    <option value="lower_payment">Sænk terminsydelse (Fasthold slutdato)</option>
                 </select>
                 
                 <button onclick="calculate()">Beregn nu</button>
@@ -120,11 +126,11 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
 let myChart = null;
 function formatDKK(v) { return Math.round(v).toLocaleString('da-DK') + ' kr.'; }
 
-function runSim(loan, rate, totalMonths, extra, extraType, strategy) {
-    let bal = loan, totInt = 0, totDed = 0, mCount = 0, yData = [];
+function runSim(loan, rate, totalPeriods, extra, extraType, strategy, periodsPerYear) {
+    let bal = loan, totInt = 0, totDed = 0, pCount = 0, yData = [];
     let yInt = 0, yPri = 0, yExt = 0, yCount = 1;
     
-    let basePmt = rate === 0 ? loan / totalMonths : loan * rate / (1 - Math.pow(1 + rate, -totalMonths));
+    let basePmt = rate === 0 ? loan / totalPeriods : loan * rate / (1 - Math.pow(1 + rate, -totalPeriods));
     let currentPmt = basePmt;
     let cData = [loan];
 
@@ -134,13 +140,13 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy) {
         yExt += firstCut;
         
         if (strategy === 'lower_payment' && bal > 0) {
-            currentPmt = rate === 0 ? bal / totalMonths : bal * rate / (1 - Math.pow(1 + rate, -totalMonths));
+            currentPmt = rate === 0 ? bal / totalPeriods : bal * rate / (1 - Math.pow(1 + rate, -totalPeriods));
         }
     }
 
-    for (let m = 1; m <= totalMonths; m++) {
+    for (let p = 1; p <= totalPeriods; p++) {
         if (bal <= 0) break;
-        mCount++;
+        pCount++;
         let intr = bal * rate;
         let prin = currentPmt - intr;
         if (prin > bal) prin = bal;
@@ -152,45 +158,52 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy) {
             bal -= extApp;
             yExt += extApp;
             
-            if (strategy === 'lower_payment' && bal > 0 && (totalMonths - m) > 0) {
-                let remMonths = totalMonths - m;
-                currentPmt = rate === 0 ? bal / remMonths : bal * rate / (1 - Math.pow(1 + rate, -remMonths));
+            if (strategy === 'lower_payment' && bal > 0 && (totalPeriods - p) > 0) {
+                let remPeriods = totalPeriods - p;
+                currentPmt = rate === 0 ? bal / remPeriods : bal * rate / (1 - Math.pow(1 + rate, -remPeriods));
             }
         }
         yInt += intr; yPri += prin; totInt += intr;
 
-        if (m % 12 === 0 || bal <= 0) {
+        if (p % periodsPerYear === 0 || bal <= 0) {
             let yDed = yInt * 0.25; totDed += yDed;
             yData.push({ y: yCount, p: yPri, e: yExt, i: yInt, d: yDed, r: bal });
             cData.push(Math.max(0, bal));
             yInt = 0; yPri = 0; yExt = 0; yCount++;
         }
     }
-    return { totInt: totInt, totDed: totDed, mCount: mCount, yData: yData, cData: cData, finalPmt: currentPmt, startPmt: basePmt };
+    return { totInt: totInt, totDed: totDed, pCount: pCount, yData: yData, cData: cData, finalPmt: currentPmt, startPmt: basePmt };
 }
 
 function calculate() {
     let loan = parseFloat(document.getElementById("loan").value) || 0;
-    let rate = (parseFloat(document.getElementById("rate").value) || 0) / 100 / 12;
+    let periodsPerYear = parseInt(document.getElementById("frequency").value) || 12;
+    let rate = (parseFloat(document.getElementById("rate").value) || 0) / 100 / periodsPerYear;
     let years = parseInt(document.getElementById("years").value) || 0;
-    let totalMonths = years * 12;
+    let totalPeriods = years * periodsPerYear;
     let extra = parseFloat(document.getElementById("extra").value) || 0;
     let extraType = document.getElementById("extraType").value;
     let strategy = document.getElementById("strategy").value;
 
-    if (loan <= 0 || totalMonths <= 0) { alert("Indtast venligst gyldige tal."); return; }
+    if (loan <= 0 || totalPeriods <= 0) { alert("Indtast venligst gyldige tal."); return; }
 
-    let simNormal = runSim(loan, rate, totalMonths, 0, 'monthly', 'shorten');
-    let simExtra = runSim(loan, rate, totalMonths, extra, extraType, strategy);
+    let simNormal = runSim(loan, rate, totalPeriods, 0, 'monthly', 'shorten', periodsPerYear);
+    let simExtra = runSim(loan, rate, totalPeriods, extra, extraType, strategy, periodsPerYear);
 
-    let rText = Math.floor(simExtra.mCount/12) + " år og " + (simExtra.mCount%12) + " mdr.";
-    if (simExtra.mCount === totalMonths) rText = years + " år";
+    let totalYearsReel = simExtra.pCount / periodsPerYear;
+    let aarPart = Math.floor(totalYearsReel);
+    let mdrPart = Math.round((totalYearsReel - aarPart) * 12);
+    
+    let rText = aarPart + " år";
+    if (mdrPart > 0) {
+        rText += " og " + mdrPart + " mdr.";
+    }
 
-    let ydelseLabel = strategy === 'lower_payment' && extra > 0 ? 'Ny månedlig ydelse (Slut)' : 'Månedlig ordinær ydelse';
+    let pName = periodsPerYear === 12 ? 'månedlig' : 'kvartalsmæssig';
+    let ydelseLabel = strategy === 'lower_payment' && extra > 0 ? 'Ny ordinær ydelse (Slut)' : 'Ordinær ydelse (' + pName + ')';
     let ydelseValue = strategy === 'lower_payment' && extra > 0 ? formatDKK(simExtra.finalPmt) : formatDKK(simExtra.startPmt);
 
-    // Beregn den samlede tilbagebetaling (Lånebeløb + samlede renter)
-    let totalRepayValue = loan + simExtra.totInt;
+    let samletTilbagebetaling = loan + simExtra.totInt;
 
     document.getElementById("result").innerHTML = `
         <div class="result-grid">
@@ -198,7 +211,7 @@ function calculate() {
             <div class="result-block" style="grid-column: span 1;">
                 <div class="result-label">Total pris</div>
                 <div class="result-value" style="font-size: 1rem; font-weight: normal; margin-top: 5px; line-height: 1.3;">
-                    Samlet tilbagebetaling:<br><strong style="font-size: 1.15rem; color:#c62828;">` + formatDKK(totalRepayValue) + `</strong><br>
+                    Samlet tilbagebetaling:<br><strong style="font-size: 1.15rem; color:#c62828;">` + formatDKK(samletTilbagebetaling) + `</strong><br>
                     <span style="font-size: 0.85rem; color: #555;">Heraf renter: ` + formatDKK(simExtra.totInt) + `</span>
                 </div>
             </div>
@@ -209,7 +222,7 @@ function calculate() {
 
     if (extra > 0) {
         let renteBesparelse = simNormal.totInt - simExtra.totInt;
-        let mdrSparet = simNormal.mCount - simExtra.mCount;
+        let mdrSparet = Math.round((simNormal.pCount - simExtra.pCount) * (12 / periodsPerYear));
         let aarSparet = Math.floor(mdrSparet / 12);
         let resterendeMdrSparet = mdrSparet % 12;
         
@@ -219,10 +232,10 @@ function calculate() {
 
         let forklaringText = "";
         if (strategy === 'shorten') {
-            forklaringText = "Da du beholder din oprindelige månedlige ydelse, sparer du i alt <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i renteudgifter og skærer <span class='text-success'><b>" + tidsText + "</b></span> af lånets løbetid!";
+            forklaringText = "Da du beholder din oprindelige ydelse, sparer du i alt <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i renteutgifter og skærer <span class='text-success'><b>" + tidsText + "</b></span> af lånets løbetid!";
         } else {
             let ydelseRabat = simExtra.startPmt - simExtra.finalPmt;
-            forklaringText = "Da du fastholder din slutdato, vil din månedlige ydelse falde gradvist. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samlede renter, og din månedlige udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b> (en besparelse på " + formatDKK(ydelseRabat) + "/mdr. ift. start)!";
+            forklaringText = "Da du fastholder din slutdato, vil din terminsydelse falde gradvist. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samlede renter, og din ordinære udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b> (en besparelse på " + formatDKK(ydelseRabat) + "/termin ift. start)!";
         }
 
         document.getElementById("result").innerHTML += `
