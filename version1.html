@@ -1,0 +1,1225 @@
+
+<!DOCTYPE html>
+
+<html lang="da">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Amortiseringsberegner</title>
+
+ 
+
+<style>
+
+body {
+
+font-family: Arial, sans-serif;
+
+max-width: 1000px;
+
+margin: auto;
+
+padding: 20px;
+
+}
+
+ 
+
+h1 {
+
+text-align: center;
+
+}
+
+ 
+
+input {
+
+width: 100%;
+
+padding: 8px;
+
+margin-bottom: 12px;
+
+box-sizing: border-box;
+
+}
+
+ 
+
+button {
+
+background: #0078d4;
+
+color: white;
+
+border: none;
+
+padding: 10px 20px;
+
+cursor: pointer;
+
+}
+
+ 
+
+button:hover {
+
+background: #005ea6;
+
+}
+
+ 
+
+.result {
+
+margin-top: 20px;
+
+background: #f3f3f3;
+
+padding: 15px;
+
+}
+
+ 
+
+table {
+
+width: 100%;
+
+border-collapse: collapse;
+
+margin-top: 20px;
+
+}
+
+ 
+
+th, td {
+
+border: 1px solid #ccc;
+
+padding: 8px;
+
+text-align: right;
+
+}
+
+ 
+
+th {
+
+background: #efefef;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+ 
+
+<h1>Amortiseringsberegner</h1>
+
+ 
+
+<label>Lånebeløb (kr.)</label>
+
+<input id="loan" type="number" value="2000000">
+
+ 
+
+<label>Rente (%)</label>
+
+<input id="rate" type="number" step="0.01" value="4">
+
+ 
+
+<label>Løbetid (år)</label>
+
+<input id="years" type="number" value="30">
+
+ 
+
+<label>Ekstraordinært afdrag (kr.)</label>
+
+<input id="extra" type="number" value="0">
+
+ 
+
+<button onclick="calculate()">Beregn</button>
+
+ 
+
+<div id="result" class="result"></div>
+
+ 
+
+<div id="schedule"></div>
+
+ 
+
+<script>
+
+ 
+
+function formatDKK(value) {
+
+return value.toLocaleString('da-DK', {
+
+minimumFractionDigits: 0,
+
+maximumFractionDigits: 0
+
+});
+
+}
+
+ 
+
+function calculate() {
+
+ 
+
+let loan = parseFloat(document.getElementById("loan").value);
+
+let annualRate = parseFloat(document.getElementById("rate").value) / 100;
+
+let years = parseInt(document.getElementById("years").value);
+
+let extra = parseFloat(document.getElementById("extra").value);
+
+ 
+
+let adjustedLoan = loan - extra;
+
+ 
+
+if (adjustedLoan <= 0) {
+
+alert("Afdrag kan ikke overstige lånet.");
+
+return;
+
+}
+
+ 
+
+let monthlyRate = annualRate / 12;
+
+let months = years * 12;
+
+ 
+
+let payment =
+
+adjustedLoan *
+
+monthlyRate /
+
+(1 - Math.pow(1 + monthlyRate, -months));
+
+ 
+
+let balance = adjustedLoan;
+
+let totalInterest = 0;
+
+ 
+
+let yearlyData = [];
+
+ 
+
+for (let year = 1; year <= years; year++) {
+
+ 
+
+let yearInterest = 0;
+
+let yearPrincipal = 0;
+
+ 
+
+for (let m = 0; m < 12; m++) {
+
+ 
+
+let interest = balance * monthlyRate;
+
+let principal = payment - interest;
+
+ 
+
+balance -= principal;
+
+ 
+
+yearInterest += interest;
+
+yearPrincipal += principal;
+
+totalInterest += interest;
+
+ 
+
+if (balance <= 0) {
+
+balance = 0;
+
+break;
+
+}
+
+}
+
+ 
+
+yearlyData.push({
+
+year: year,
+
+principal: yearPrincipal,
+
+interest: yearInterest,
+
+remain: balance
+
+});
+
+ 
+
+if (balance <= 0) {
+
+break;
+
+}
+
+}
+
+ 
+
+document.getElementById("result").innerHTML =
+
+`
+
+<h2>Resultat</h2>
+
+ 
+
+<p><b>Månedlig ydelse:</b> ${formatDKK(payment)} kr.</p>
+
+ 
+
+<p><b>Samlede renter:</b>
+
+${formatDKK(totalInterest)} kr.</p>
+
+ 
+
+<p><b>Ekstraordinært afdrag:</b>
+
+${formatDKK(extra)} kr.</p>
+
+`;
+
+ 
+
+let html =
+
+`
+
+<table>
+
+<tr>
+
+<th>År</th>
+
+<th>Afdrag</th>
+
+<th>Renter</th>
+
+<th>Restgæld</th>
+
+</tr>
+
+`;
+
+ 
+
+yearlyData.forEach(r => {
+
+ 
+
+html += `
+
+<tr>
+
+<td>${r.year}</td>
+
+<td>${formatDKK(r.principal)}</td>
+
+<td>${formatDKK(r.interest)}</td>
+
+<td>${formatDKK(r.remain)}</td>
+
+</tr>
+
+`;
+
+});
+
+ 
+
+html += "</table>";
+
+ 
+
+document.getElementById("schedule").innerHTML = html;
+
+}
+
+ 
+
+calculate();
+
+ 
+
+</script>
+
+ 
+
+</body>
+
+</html>
+
+ 
+
+ 
+
+From: Anders Rasmussen
+Sent: Thursday, 20 August 2026 15.13
+To: Anders Rasmussen <thetrueanders@hotmail.com>
+Subject: HTML eksempel
+
+ 
+
+<!DOCTYPE html>
+
+2
+
+<html lang="da">
+
+3
+
+<head>
+
+4
+
+<meta charset="UTF-8">
+
+5
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+6
+
+<title>Amortiseringsberegner</title>
+
+7
+
+ 
+
+8
+
+<style>
+
+9
+
+body {
+
+10
+
+font-family: Arial, sans-serif;
+
+11
+
+max-width: 1200px;
+
+12
+
+margin: auto;
+
+13
+
+padding: 20px;
+
+14
+
+background: #f5f5f5;
+
+15
+
+}
+
+16
+
+ 
+
+17
+
+h1 {
+
+18
+
+text-align: center;
+
+19
+
+}
+
+20
+
+ 
+
+21
+
+.box {
+
+22
+
+background: white;
+
+23
+
+padding: 20px;
+
+24
+
+border-radius: 8px;
+
+25
+
+margin-bottom: 20px;
+
+26
+
+}
+
+27
+
+ 
+
+28
+
+label {
+
+29
+
+display: block;
+
+30
+
+margin-top: 10px;
+
+31
+
+}
+
+32
+
+ 
+
+33
+
+input {
+
+34
+
+width: 100%;
+
+35
+
+padding: 8px;
+
+36
+
+box-sizing: border-box;
+
+37
+
+}
+
+38
+
+ 
+
+39
+
+button {
+
+40
+
+margin-top: 20px;
+
+41
+
+padding: 10px 20px;
+
+42
+
+cursor: pointer;
+
+43
+
+background: #0066cc;
+
+44
+
+color: white;
+
+45
+
+border: none;
+
+46
+
+border-radius: 5px;
+
+47
+
+}
+
+48
+
+ 
+
+49
+
+button:hover {
+
+50
+
+background: #0050a3;
+
+51
+
+}
+
+52
+
+ 
+
+53
+
+.result {
+
+54
+
+font-size: 18px;
+
+55
+
+margin-top: 10px;
+
+56
+
+}
+
+57
+
+ 
+
+58
+
+table {
+
+59
+
+width: 100%;
+
+60
+
+border-collapse: collapse;
+
+61
+
+background: white;
+
+62
+
+}
+
+63
+
+ 
+
+64
+
+th, td {
+
+65
+
+border: 1px solid #ddd;
+
+66
+
+padding: 8px;
+
+67
+
+}
+
+68
+
+ 
+
+69
+
+th {
+
+70
+
+background: #0066cc;
+
+71
+
+color: white;
+
+72
+
+}
+
+73
+
+ 
+
+74
+
+tr:nth-child(even) {
+
+75
+
+background: #f2f2f2;
+
+76
+
+}
+
+77
+
+</style>
+
+78
+
+</head>
+
+79
+
+<body>
+
+80
+
+ 
+
+81
+
+<h1>Amortiseringsberegner</h1>
+
+82
+
+ 
+
+83
+
+<div class="box">
+
+84
+
+ 
+
+85
+
+<label>Lånebeløb (kr)</label>
+
+86
+
+<input type="number" id="loan" value="2000000">
+
+87
+
+ 
+
+88
+
+<label>Årlig rente (%)</label>
+
+89
+
+<input type="number" step="0.01" id="rate" value="4">
+
+90
+
+ 
+
+91
+
+<label>Løbetid (år)</label>
+
+92
+
+<input type="number" id="years" value="30">
+
+93
+
+ 
+
+94
+
+<button onclick="calculate()">
+
+95
+
+Beregn
+
+96
+
+</button>
+
+97
+
+ 
+
+98
+
+</div>
+
+99
+
+ 
+
+100
+
+<div class="box">
+
+101
+
+ 
+
+102
+
+<div class="result" id="monthly"></div>
+
+103
+
+<div class="result" id="interest"></div>
+
+104
+
+<div class="result" id="total"></div>
+
+105
+
+ 
+
+106
+
+</div>
+
+107
+
+ 
+
+108
+
+<div class="box">
+
+109
+
+ 
+
+110
+
+<table id="schedule">
+
+111
+
+ 
+
+112
+
+</table>
+
+113
+
+ 
+
+114
+
+</div>
+
+115
+
+ 
+
+116
+
+<script>
+
+117
+
+ 
+
+118
+
+function calculate() {
+
+119
+
+ 
+
+120
+
+const loan =
+
+121
+
+parseFloat(document.getElementById('loan').value);
+
+122
+
+ 
+
+123
+
+const annualRate =
+
+124
+
+parseFloat(document.getElementById('rate').value);
+
+125
+
+ 
+
+126
+
+const years =
+
+127
+
+parseInt(document.getElementById('years').value);
+
+128
+
+ 
+
+129
+
+const monthlyRate =
+
+130
+
+annualRate / 100 / 12;
+
+131
+
+ 
+
+132
+
+const months =
+
+133
+
+years * 12;
+
+134
+
+ 
+
+135
+
+const payment =
+
+136
+
+loan *
+
+137
+
+(
+
+138
+
+monthlyRate *
+
+139
+
+Math.pow(1 + monthlyRate, months)
+
+140
+
+)
+
+141
+
+/
+
+142
+
+(
+
+143
+
+Math.pow(1 + monthlyRate, months) - 1
+
+144
+
+);
+
+145
+
+ 
+
+146
+
+let balance = loan;
+
+147
+
+let totalInterest = 0;
+
+148
+
+ 
+
+149
+
+const table =
+
+150
+
+document.getElementById('schedule');
+
+151
+
+ 
+
+152
+
+table.innerHTML = `
+
+153
+
+<tr>
+
+154
+
+<th>Måned</th>
+
+155
+
+<th>Ydelse</th>
+
+156
+
+<th>Rente</th>
+
+157
+
+<th>Afdrag</th>
+
+158
+
+<th>Restgæld</th>
+
+159
+
+</tr>
+
+160
+
+`;
+
+161
+
+ 
+
+162
+
+for(let month = 1; month <= months; month++) {
+
+163
+
+ 
+
+164
+
+const interest =
+
+165
+
+balance * monthlyRate;
+
+166
+
+ 
+
+167
+
+const principal =
+
+168
+
+payment - interest;
+
+169
+
+ 
+
+170
+
+balance -= principal;
+
+171
+
+ 
+
+172
+
+totalInterest += interest;
+
+173
+
+ 
+
+174
+
+if(balance < 0)
+
+175
+
+balance = 0;
+
+176
+
+ 
+
+177
+
+table.innerHTML += `
+
+178
+
+<tr>
+
+179
+
+<td>${month}</td>
+
+180
+
+<td>${payment.toFixed(2)}</td>
+
+181
+
+<td>${interest.toFixed(2)}</td>
+
+182
+
+<td>${principal.toFixed(2)}</td>
+
+183
+
+<td>${balance.toFixed(2)}</td>
+
+184
+
+</tr>
+
+185
+
+`;
+
+186
+
+}
+
+187
+
+ 
+
+188
+
+document.getElementById('monthly').innerHTML =
+
+189
+
+`<b>Månedlig ydelse:</b> ${payment.toFixed(2)} kr`;
+
+190
+
+ 
+
+191
+
+document.getElementById('interest').innerHTML =
+
+192
+
+`<b>Samlet rente:</b> ${totalInterest.toFixed(2)} kr`;
+
+193
+
+ 
+
+194
+
+document.getElementById('total').innerHTML =
+
+195
+
+`<b>Samlet tilbagebetaling:</b> ${(loan + totalInterest).toFixed(2)} kr`;
+
+196
+
+}
+
+197
+
+ 
+
+198
+
+calculate();
+
+199
+
+ 
+
+200
+
+</script>
+
+201
+
+ 
+
+202
+
+</body>
+
+203
+
+</html>
+
+ 
+
+ 
