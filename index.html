@@ -1,242 +1,215 @@
 <!DOCTYPE html>
 <html lang="da">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avanceret Låneberegner - optimeret til privatøkonomi</title>
-
-<!-- Godkendt og sikker CDN-forbindelse til grafen -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-
-<style>
-:root { --primary: #005ea6; --primary-hover: #00447a; --success: #2e7d32; --bg: #f4f6f9; --card-bg: #ffffff; --text: #333333; --border: #e0e0e0; }
-body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
-.container { max-width: 1200px; margin: 20px auto; }
-h1, .subtitle { text-align: center; margin-bottom: 5px; }
-.subtitle { color: #666; margin-bottom: 30px; }
-
-.main-layout { display: grid; grid-template-columns: 1fr; gap: 25px; align-items: start; }
-@media (min-width: 768px) { .main-layout { grid-template-columns: 320px 1fr; } }
-
-.card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; }
-.card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 15px 0; border-bottom: 2px solid var(--bg); padding-bottom: 8px; }
-label { font-weight: 600; display: block; margin-top: 12px; font-size: 0.85rem; }
-input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; margin-top: 4px; font-size: 0.95rem; }
-button { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 20px; font-size: 1rem; }
-button:hover { background: var(--primary-hover); }
-
-.result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 5px; }
-.result-block { background: var(--bg); padding: 15px; border-radius: 8px; border-top: 4px solid var(--primary); }
-.result-block.success { border-top-color: var(--success); }
-.result-label { font-size: 0.8rem; color: #666; text-transform: uppercase; font-weight: bold; }
-.result-value { font-size: 1.3rem; font-weight: bold; margin-top: 5px; }
-.savings-box { background: #e8f5e9; border: 2px dashed var(--success); padding: 15px; border-radius: 8px; margin-top: 15px; }
-
-.table-container { overflow-x: auto; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); margin-top: 20px; }
-table { width: 100%; border-collapse: collapse; text-align: right; }
-th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
-th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
-.text-success { color: var(--success); font-weight: 600; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avanceret Låne- & Amortiseringsberegner</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { color: #2c3e50; margin-top: 30px; }
+        h1:first-child { margin-top: 0; }
+        
+        /* Styling af de to separate kasser/sektioner */
+        .input-section { background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 20px; margin-bottom: 20px; }
+        .input-section.extraordinary { background-color: #fcfcfc; border-left: 4px solid #3498db; }
+        .input-section h3 { margin-top: 0; color: #34495e; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input[type="number"], select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .radio-group { margin: 10px 0; }
+        .radio-group label { display: inline; font-weight: normal; margin-right: 15px; }
+        
+        button { background-color: #27ae60; color: white; padding: 12px 15px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+        button:hover { background-color: #219653; }
+        
+        .results-box { background: #ecf0f1; padding: 15px; border-radius: 4px; margin-top: 20px; display: none; border-left: 4px solid #27ae60; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+        th { background-color: #34495e; color: white; text-align: center; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+    </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Låne- & Amortiseringsberegner</h1>
-    <p class="subtitle">Beregn dine månedlige ydelser og vælg bankstrategi for dine ekstraordinære afdrag.</p>
+    <p>Beregn dine månedlige ydelser og vælg bankstrategi for dine ekstraordinære afdrag.</p>
 
-    <div class="main-layout">
-        <!-- Kompakt inputpanel i venstre side -->
-        <div class="card">
-            <div class="card-title">Indtast lånedata</div>
-            
-            <label for="loan">Lånebeløb (kr.)</label>
-            <input id="loan" type="number" value="2000000">
-            
-            <label for="rate">Årlig rente (%)</label>
-            <input id="rate" type="number" step="0.01" value="4">
-            
-            <label for="years">Løbetid (år)</label>
-            <input id="years" type="number" value="30">
-            
-            <label for="extraType">Frekvens af ekstra afdrag</label>
-            <select id="extraType">
-                <option value="monthly">Hver måned (Fast beløb)</option>
-                <option value="onetime">Engangsbeløb (Her og nu)</option>
-            </select>
-            
-            <label for="extra">Ekstraordinært beløb (kr.)</label>
-            <input id="extra" type="number" value="1000">
+    <!-- KASSE 1: Nødvendige lånedata -->
+    <div class="input-section">
+        <h3>Nødvendige lånedata</h3>
+        <div class="form-group">
+            <label for="loanAmount">Lånebeløb (kr.)</label>
+            <input type="number" id="loanAmount" value="2000000">
+        </div>
+        
+        <div class="form-group">
+            <label for="interestRate">Årlig rente (%)</label>
+            <input type="number" id="interestRate" value="4" step="0.1">
+        </div>
+        
+        <div class="form-group">
+            <label for="loanTerm">Løbetid (år)</label>
+            <input type="number" id="loanTerm" value="30">
+        </div>
+    </div>
 
-            <label for="strategy">Bankens strategi efter afdrag</label>
-            <select id="strategy">
-                <option value="shorten">Afkort løbetid (Behold samme månedlige ydelse)</option>
-                <option value="lower_payment">Sænk månedlig ydelse (Fasthold slutdato)</option>
-            </select>
-            
-            <button onclick="calculate()">Beregn nu</button>
+    <!-- KASSE 2: Valgfri ekstraordinær indbetaling -->
+    <div class="input-section extraordinary">
+        <h3>Valgfri ekstraordinær indbetaling</h3>
+        <div class="form-group">
+            <label>Frekvens af ekstra afdrag</label>
+            <div class="radio-group">
+                <input type="radio" id="freqMonthly" name="freq" value="monthly" checked>
+                <label for="freqMonthly">Hver måned (Fast beløb)</label>
+                <input type="radio" id="freqOnce" name="freq" value="once">
+                <label for="freqOnce">Engangsbeløb (Her og nu)</label>
+            </div>
         </div>
 
-        <!-- Resultatpaneler i højre side -->
-        <div>
-            <div class="card">
-                <div class="card-title">Oversigt over lånets omkostninger</div>
-                <div id="result">Indtast data og tryk beregn for at se resultatet.</div>
-            </div>
-            
-            <div id="chart-box" class="card" style="display:none;">
-                <div class="card-title">Afvikling af restgæld over tid</div>
-                <canvas id="loanChart" style="max-height: 320px; width: 100%;"></canvas>
-            </div>
-            
-            <div id="schedule-box" class="table-container" style="display:none;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="text-align:center;">År</th>
-                            <th>Ordinært Afdrag</th>
-                            <th>Ekstraordinært Afdrag</th>
-                            <th>Renter</th>
-                            <th>Rentefradrag (25%)</th>
-                            <th>Restgæld ultimo</th>
-                        </tr>
-                    </thead>
-                    <tbody id="schedule-body"></tbody>
-                </table>
+        <div class="form-group">
+            <label for="extraAmount">Ekstraordinært beløb (kr.)</label>
+            <input type="number" id="extraAmount" value="0">
+        </div>
+
+        <div class="form-group">
+            <label>Bankens strategi efter afdrag</label>
+            <div class="radio-group">
+                <input type="radio" id="stratReduceTerm" name="strategy" value="reduceTerm" checked>
+                <label for="stratReduceTerm">Afkort løbetid (Behold samme månedlige ydelse)</label><br>
+                <input type="radio" id="stratReducePayment" name="strategy" value="reducePayment">
+                <label for="stratReducePayment">Sænk månedlig ydelse (Fasthold slutdato)</label>
             </div>
         </div>
     </div>
+
+    <button onclick="calculateLoan()">Beregn nu</button>
+
+    <!-- Oversigt over lånets omkostninger -->
+    <div id="resultsBox" class="results-box">
+        <h2>Oversigt over lånets omkostninger</h2>
+        <div id="summaryText"></div>
+    </div>
+
+    <!-- Amortiseringstabel -->
+    <h2>Afvikling af restgæld over tid (Årlig oversigt)</h2>
+    <table id="amortizationTable">
+        <thead>
+            <tr>
+                <th>År</th>
+                <th>Ordinært Afdrag</th>
+                <th>Ekstraordinært Afdrag</th>
+                <th>Renter</th>
+                <th>Rentefradrag (25%)</th>
+                <th>Restgæld ultimo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="6" style="text-align:center;">Indtast data og tryk beregn for at se resultatet.</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 <script>
-let myChart = null;
-function formatDKK(v) { return Math.round(v).toLocaleString('da-DK') + ' kr.'; }
+function calculateLoan() {
+    let principal = parseFloat(document.getElementById('loanAmount').value);
+    const annualRate = parseFloat(document.getElementById('interestRate').value) / 100;
+    const totalYears = parseInt(document.getElementById('loanTerm').value);
+    const extraAmount = parseFloat(document.getElementById('extraAmount').value) || 0;
+    const isMonthlyExtra = document.getElementById('freqMonthly').checked;
+    const isReduceTerm = document.getElementById('stratReduceTerm').checked;
 
-function runSim(loan, rate, totalMonths, extra, extraType, strategy) {
-    let bal = loan, totInt = 0, totDed = 0, mCount = 0, yData = [];
-    let yInt = 0, yPri = 0, yExt = 0, yCount = 1;
+    const monthlyRate = annualRate / 12;
+    let totalMonths = totalYears * 12;
     
-    let basePmt = rate === 0 ? loan / totalMonths : loan * rate / (1 - Math.pow(1 + rate, -totalMonths));
-    let currentPmt = basePmt;
-    let cData = [loan];
+    let monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+    
+    let balance = principal;
+    let tableBody = "";
+    
+    let totalPaidInterest = 0;
+    let totalPaidPrincipal = 0;
+    let totalExtraPaid = 0;
+    
+    let currentYear = 1;
+    let yearlyPrincipal = 0;
+    let yearlyExtra = 0;
+    let yearlyInterest = 0;
 
-    if (extraType === 'onetime' && extra > 0) {
-        let firstCut = Math.min(extra, bal);
-        bal -= firstCut;
-        yExt += firstCut;
+    for (let month = 1; month <= totalMonths; month++) {
+        if (balance <= 0) break;
+
+        let interestPayment = balance * monthlyRate;
+        let principalPayment = monthlyPayment - interestPayment;
         
-        if (strategy === 'lower_payment' && bal > 0) {
-            currentPmt = rate === 0 ? bal / totalMonths : bal * rate / (1 - Math.pow(1 + rate, -totalMonths));
+        if (principalPayment > balance) {
+            principalPayment = balance;
         }
-    }
+        balance -= principalPayment;
+        
+        let actualExtra = 0;
+        if (isMonthlyExtra) {
+            actualExtra = extraAmount;
+        } else if (!isMonthlyExtra && month === 1) {
+            actualExtra = extraAmount;
+        }
 
-    for (let m = 1; m <= totalMonths; m++) {
-        if (bal <= 0) break;
-        mCount++;
-        let intr = bal * rate;
-        let prin = currentPmt - intr;
-        if (prin > bal) prin = bal;
-        bal -= prin;
+        if (actualExtra > balance) {
+            actualExtra = balance;
+        }
+        balance -= actualExtra;
 
-        let extApp = 0;
-        if (extraType === 'monthly' && bal > 0 && extra > 0) {
-            extApp = Math.min(extra, bal);
-            bal -= extApp;
-            yExt += extApp;
+        yearlyPrincipal += principalPayment;
+        yearlyExtra += actualExtra;
+        yearlyInterest += interestPayment;
+
+        totalPaidInterest += interestPayment;
+        totalPaidPrincipal += principalPayment;
+        totalExtraPaid += actualExtra;
+
+        if (month % 12 === 0 || balance <= 0) {
+            let rentefradrag = yearlyInterest * 0.25;
+            tableBody += `<tr>
+                <td style="text-align:center;">${currentYear}</td>
+                <td>${Math.round(yearlyPrincipal).toLocaleString('da-DK')} kr.</td>
+                <td>${Math.round(yearlyExtra).toLocaleString('da-DK')} kr.</td>
+                <td>${Math.round(yearlyInterest).toLocaleString('da-DK')} kr.</td>
+                <td>${Math.round(rentefradrag).toLocaleString('da-DK')} kr.</td>
+                <td>${Math.max(0, Math.round(balance)).toLocaleString('da-DK')} kr.</td>
+            </tr>`;
             
-            if (strategy === 'lower_payment' && bal > 0 && (totalMonths - m) > 0) {
-                let remMonths = totalMonths - m;
-                currentPmt = rate === 0 ? bal / remMonths : bal * rate / (1 - Math.pow(1 + rate, -remMonths));
+            currentYear++;
+            yearlyPrincipal = 0;
+            yearlyExtra = 0;
+            yearlyInterest = 0;
+        }
+
+        if (!isReduceTerm && actualExtra > 0 && balance > 0) {
+            let remainingMonths = totalMonths - month;
+            if (remainingMonths > 0) {
+                monthlyPayment = balance * (monthlyRate * Math.pow(1 + monthlyRate, remainingMonths)) / (Math.pow(1 + monthlyRate, remainingMonths) - 1);
             }
         }
-        yInt += intr; yPri += prin; totInt += intr;
-
-        if (m % 12 === 0 || bal <= 0) {
-            let yDed = yInt * 0.25; totDed += yDed;
-            yData.push({ y: yCount, p: yPri, e: yExt, i: yInt, d: yDed, r: bal });
-            cData.push(Math.max(0, bal));
-            yInt = 0; yPri = 0; yExt = 0; yCount++;
-        }
     }
-    return { totInt: totInt, totDed: totDed, mCount: mCount, yData: yData, cData: cData, finalPmt: currentPmt, startPmt: basePmt };
-}
 
-function calculate() {
-    let loan = parseFloat(document.getElementById("loan").value) || 0;
-    let rate = (parseFloat(document.getElementById("rate").value) || 0) / 100 / 12;
-    let years = parseInt(document.getElementById("years").value) || 0;
-    let totalMonths = years * 12;
-    let extra = parseFloat(document.getElementById("extra").value) || 0;
-    let extraType = document.getElementById("extraType").value;
-    let strategy = document.getElementById("strategy").value;
+    let totalRepayment = totalPaidPrincipal + totalPaidInterest + totalExtraPaid;
 
-    if (loan <= 0 || totalMonths <= 0) { alert("Indtast venligst gyldige tal."); return; }
+    document.querySelector('#amortizationTable tbody').innerHTML = tableBody;
 
-    let simNormal = runSim(loan, rate, totalMonths, 0, 'monthly', 'shorten');
-    let simExtra = runSim(loan, rate, totalMonths, extra, extraType, strategy);
-
-    let rText = Math.floor(simExtra.mCount/12) + " år og " + (simExtra.mCount%12) + " mdr.";
-    if (simExtra.mCount === totalMonths) rText = years + " år";
-
-    let ydelseLabel = strategy === 'lower_payment' && extra > 0 ? 'Ny månedlig ydelse (Slut)' : 'Månedlig ordinær ydelse';
-    let ydelseValue = strategy === 'lower_payment' && extra > 0 ? formatDKK(simExtra.finalPmt) : formatDKK(simExtra.startPmt);
-
-    document.getElementById("result").innerHTML = `
-        <div class="result-grid">
-            <div class="result-block"><div class="result-label">` + ydelseLabel + `</div><div class="result-value">` + ydelseValue + `</div></div>
-            <div class="result-block"><div class="result-label">Samlede Renter</div><div class="result-value" style="color:#c62828;">` + formatDKK(simExtra.totInt) + `</div></div>
-            <div class="result-block success"><div class="result-label">Est. Rentefradrag</div><div class="result-value text-success">` + formatDKK(simExtra.totDed) + `</div></div>
-            <div class="result-block"><div class="result-label">Reel løbetid</div><div class="result-value">` + rText + `</div></div>
-        </div>
+    let summaryText = `
+        <p><strong>Samlet tilbagebetaling:</strong> ${Math.round(totalRepayment).toLocaleString('da-DK')} kr. <em>Heraf renter: ${Math.round(totalPaidInterest).toLocaleString('da-DK')} kr.</em></p>
+        <p><strong>Samlet værdi af rentefradrag (25%):</strong> ${Math.round(totalPaidInterest * 0.25).toLocaleString('da-DK')} kr.</p>
+        <p><strong>Samlet ekstraordinært afdraget:</strong> ${Math.round(totalExtraPaid).toLocaleString('da-DK')} kr.</p>
+        <p><strong>Lånets reelle løbetid:</strong> ${Math.ceil((currentYear - 1) * 12 / 12)} år (eller indfriet før tid).</p>
     `;
-
-    if (extra > 0) {
-        let renteBesparelse = simNormal.totInt - simExtra.totInt;
-        let mdrSparet = simNormal.mCount - simExtra.mCount;
-        let aarSparet = Math.floor(mdrSparet / 12);
-        let resterendeMdrSparet = mdrSparet % 12;
-        
-        let tidsText = "";
-        if (aarSparet > 0) tidsText += aarSparet + " år ";
-        if (resterendeMdrSparet > 0) tidsText += resterendeMdrSparet + " mdr.";
-
-        let forklaringText = "";
-        if (strategy === 'shorten') {
-            forklaringText = "Da du beholder din oprindelige månedlige ydelse, sparer du i alt <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i renteudgifter og skærer <span class='text-success'><b>" + tidsText + "</b></span> af lånets løbetid!";
-        } else {
-            let ydelseRabat = simExtra.startPmt - simExtra.finalPmt;
-            forklaringText = "Da du fastholder din slutdato, vil din månedlige ydelse falde gradvist. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samlede renter, og din månedlige udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b> (en besparelse på " + formatDKK(ydelseRabat) + "/mdr. ift. start)!";
-        }
-
-        document.getElementById("result").innerHTML += `
-            <div class="savings-box">
-                <h3 style="margin:0 0 5px 0; color:var(--success); font-size:1.1rem;">🎉 Gevinst ved din valgte bankstrategi:</h3>
-                <p style="margin:0; font-size:0.95rem;">` + forklaringText + `</p>
-            </div>
-        `;
-    }
-
-    let html = "";
-    simExtra.yData.forEach(function(r) {
-        html += `<tr><td style="text-align:center;font-weight:bold;">År ${r.y}</td><td>${formatDKK(r.p)}</td><td style="${r.e>0?'color:var(--primary);font-weight:600;':''}">${formatDKK(r.e)}</td><td>${formatDKK(r.i)}</td><td class="text-success">${formatDKK(r.d)}</td><td><b>${formatDKK(r.r)}</b></td></tr>`;
-    });
-    document.getElementById("schedule-body").innerHTML = html;
-    document.getElementById("schedule-box").style.display = "block";
-    document.getElementById("chart-box").style.display = "block";
-
-    let cLabels = ["Start"];
-    for(let i=1; i<=simExtra.yData.length; i++) { cLabels.push("År " + i); }
-
-    let ctx = document.getElementById('loanChart').getContext('2d');
-    if (myChart) { myChart.destroy(); }
-    
-    myChart = new Chart(ctx, {
-        type: 'line',
-        data: { labels: cLabels, datasets: [{ label: 'Restgæld (kr.)', data: simExtra.cData, borderColor: '#005ea6', backgroundColor: 'rgba(0, 94, 166, 0.1)', fill: true, tension: 0.1, borderWidth: 3 }] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function(val) { return val.toLocaleString('da-DK') + ' kr.'; } } } } }
-    });
+    document.getElementById('summaryText').innerHTML = summaryText;
+    document.getElementById('resultsBox').style.display = 'block';
 }
-calculate();
 </script>
+
 </body>
 </html>
