@@ -3,91 +3,240 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Amortiseringsberegner med Rentefradrag</title>
+<title>Professionel Amortiseringsberegner</title>
 
 <style>
+:root {
+    --primary: #005ea6;
+    --primary-hover: #00447a;
+    --success: #2e7d32;
+    --bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --text: #333333;
+    --text-muted: #666666;
+    --border: #e0e0e0;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    max-width: 1000px;
-    margin: auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    margin: 0;
     padding: 20px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
 }
 
 h1 {
     text-align: center;
+    color: var(--primary);
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+}
+
+.main-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+
+@media (min-width: 768px) {
+    .main-layout {
+        grid-template-columns: 350px 1fr;
+    }
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+    height: fit-content;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--bg);
+    padding-bottom: 10px;
 }
 
 label {
-    font-weight: bold;
+    font-weight: 600;
     display: block;
-    margin-top: 10px;
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: var(--text);
 }
 
 input {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
     box-sizing: border-box;
+    font-size: 1rem;
+    margin-top: 5px;
+    transition: border-color 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary);
 }
 
 button {
-    background: #0078d4;
+    background: var(--primary);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 14px;
+    border-radius: 8px;
     cursor: pointer;
     width: 100%;
-    font-size: 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 25px;
+    transition: background 0.2s;
 }
 
 button:hover {
-    background: #005ea6;
+    background: var(--primary-hover);
 }
 
-.result {
-    margin-top: 20px;
-    background: #f3f3f3;
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.result-block {
+    background: var(--bg);
     padding: 15px;
-    border-left: 5px solid #0078d4;
+    border-radius: 8px;
+    border-top: 4px solid var(--primary);
+}
+
+.result-block.success {
+    border-top-color: var(--success);
+}
+
+.result-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.result-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin-top: 30px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
-}
-
-th, td {
-    border: 1px solid #ccc;
-    padding: 8px;
     text-align: right;
 }
 
+th, td {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
 th {
-    background: #efefef;
+    background: #f8f9fa;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background-color: #f8f9fa;
+}
+
+.text-success {
+    color: var(--success);
+    font-weight: 600;
 }
 </style>
 </head>
 <body>
 
-<h1>Amortiseringsberegner</h1>
+<div class="container">
+    <h1>Låne- & Amortiseringsberegner</h1>
+    <p class="subtitle">Få det fulde overblik over dine månedlige ydelser, renteudgifter og rentefradrag.</p>
 
-<label>Lånebeløb (kr.)</label>
-<input id="loan" type="number" value="2000000">
+    <div class="main-layout">
+        <div class="card">
+            <div class="card-title">Indtast lånedata</div>
+            
+            <label for="loan">Lånebeløb (kr.)</label>
+            <input id="loan" type="number" value="2000000">
 
-<label>Rente (%)</label>
-<input id="rate" type="number" step="0.01" value="4">
+            <label for="rate">Årlig rente (%)</label>
+            <input id="rate" type="number" step="0.01" value="4">
 
-<label>Løbetid (år)</label>
-<input id="years" type="number" value="30">
+            <label for="years">Løbetid (år)</label>
+            <input id="years" type="number" value="30">
 
-<label>Ekstraordinært afdrag (kr.)</label>
-<input id="extra" type="number" value="0">
+            <label for="extra">Månedligt ekstraordinært afdrag (kr.)</label>
+            <input id="extra" type="number" value="0" placeholder="F.eks. 1000">
 
-<button onclick="calculate()">Beregn lån</button>
+            <button onclick="calculate()">Beregn nu</button>
+        </div>
 
-<div id="result" class="result"></div>
-<div id="schedule"></div>
+        <div>
+            <div class="card">
+                <div class="card-title">Oversigt over lånets omkostninger</div>
+                <div id="result"></div>
+            </div>
+
+            <div id="schedule-box" class="table-container" style="display:none;">
+                <table id="schedule-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">År</th>
+                            <th>Ordinært Afdrag</th>
+                            <th>Ekstra Afdrag</th>
+                            <th>Renter</th>
+                            <th>Est. Rentefradrag (25%)</th>
+                            <th>Restgæld ultimo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 function formatDKK(value) {
@@ -101,109 +250,124 @@ function calculate() {
     let loan = parseFloat(document.getElementById("loan").value) || 0;
     let annualRate = parseFloat(document.getElementById("rate").value) / 100;
     let years = parseInt(document.getElementById("years").value) || 0;
-    let extra = parseFloat(document.getElementById("extra").value) || 0;
+    let monthlyExtra = parseFloat(document.getElementById("extra").value) || 0;
 
-    let adjustedLoan = loan - extra;
-
-    if (adjustedLoan <= 0) {
-        alert("Afdrag og lån stemmer ikke overens, eller lånet er allerede betalt ud.");
-        return;
-    }
-    if (years <= 0) {
-        alert("Indtast venligst en gyldig løbetid i år.");
+    if (loan <= 0 || years <= 0) {
+        alert("Indtast venligst et gyldigt lånebeløb og løbetid.");
         return;
     }
 
     let monthlyRate = annualRate / 12;
-    let months = years * 12;
-    let payment = 0;
+    let totalMonths = years * 12;
+    let basePayment = 0;
 
-    // SIKRING MOD O% RENTE: Hvis renten er 0, er ydelsen blot beløb divideret med måneder
     if (monthlyRate === 0) {
-        payment = adjustedLoan / months;
+        basePayment = loan / totalMonths;
     } else {
-        payment = adjustedLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -months));
+        basePayment = loan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -totalMonths));
     }
 
-    let balance = adjustedLoan;
+    let balance = loan;
     let totalInterest = 0;
-    let totalTaxDeduction = 0; // Tilføjet rentefradrag-tæller
+    let totalTaxDeduction = 0;
+    let totalExtraPaid = 0;
+    let actualMonthsCount = 0;
     let yearlyData = [];
 
-    for (let year = 1; year <= years; year++) {
-        let yearInterest = 0;
-        let yearPrincipal = 0;
+    let currentYearInterest = 0;
+    let currentYearPrincipal = 0;
+    let currentYearExtra = 0;
+    let yearCounter = 1;
 
-        for (let m = 0; m < 12; m++) {
-            if (balance <= 0) break;
+    for (let m = 1; m <= totalMonths; m++) {
+        if (balance <= 0) break;
 
-            let interest = balance * monthlyRate;
-            let principal = payment - interest;
+        actualMonthsCount++;
+        let interest = balance * monthlyRate;
+        let principal = basePayment - interest;
 
-            // Hvis det sidste afdrag er større end den resterende balance
-            if (principal > balance) {
-                principal = balance;
-            }
+        if (principal > balance) {
+            principal = balance;
+        }
+        balance -= principal;
 
-            balance -= principal;
-            yearInterest += interest;
-            yearPrincipal += principal;
-            totalInterest += interest;
+        let extraApplied = 0;
+        if (balance > 0 && monthlyExtra > 0) {
+            extraApplied = Math.min(monthlyExtra, balance);
+            balance -= extraApplied;
+            totalExtraPaid += extraApplied;
+            currentYearExtra += extraApplied;
         }
 
-        // Beregn det danske rentefradrag (sat til gennemsnitligt 25% for nemhedens skyld)
-        let yearTaxDeduction = yearInterest * 0.25;
-        totalTaxDeduction += yearTaxDeduction;
+        currentYearInterest += interest;
+        currentYearPrincipal += principal;
+        totalInterest += interest;
 
-        yearlyData.push({
-            year: year,
-            principal: yearPrincipal,
-            interest: yearInterest,
-            deduction: yearTaxDeduction,
-            remain: Math.max(0, balance)
-        });
+        if (m % 12 === 0 || balance <= 0) {
+            let yearTaxDeduction = currentYearInterest * 0.25;
+            totalTaxDeduction += yearTaxDeduction;
 
-        if (balance <= 0) break;
+            yearlyData.push({
+                year: yearCounter,
+                principal: currentYearPrincipal,
+                extra: currentYearExtra,
+                interest: currentYearInterest,
+                deduction: yearTaxDeduction,
+                remain: Math.max(0, balance)
+            });
+
+            currentYearInterest = 0;
+            currentYearPrincipal = 0;
+            currentYearExtra = 0;
+            yearCounter++;
+        }
     }
 
-    // Udskriv det samlede resultat øverst
+    let actualYears = Math.floor(actualMonthsCount / 12);
+    let actualMonths = actualMonthsCount % 12;
+    let runtimeText = `${actualYears} år og ${actualMonths} mdr.`;
+    if (actualMonthsCount === totalMonths) runtimeText = `${years} år`;
+
     document.getElementById("result").innerHTML = `
-        <h2>Resultat</h2>
-        <p><b>Månedlig ydelse (før skat):</b> ${formatDKK(payment)} kr.</p>
-        <p><b>Samlede renteudgifter:</b> ${formatDKK(totalInterest)} kr.</p>
-        <p><b>Estimeret samlet skattebesparelse (Rentefradrag):</b> ${formatDKK(totalTaxDeduction)} kr.</p>
-        <p><b>Ekstraordinært afdrag her og nu:</b> ${formatDKK(extra)} kr.</p>
+        <div class="result-grid">
+            <div class="result-block">
+                <div class="result-label">Månedlig ydelse (før ekstra)</div>
+                <div class="result-value">${formatDKK(basePayment)} kr.</div>
+            </div>
+            <div class="result-block">
+                <div class="result-label">Samlede Renter</div>
+                <div class="result-value" style="color: #c62828;">${formatDKK(totalInterest)} kr.</div>
+            </div>
+            <div class="result-block success">
+                <div class="result-label">Estimeret Rentefradrag</div>
+                <div class="result-value text-success">${formatDKK(totalTaxDeduction)} kr.</div>
+            </div>
+            <div class="result-block">
+                <div class="result-label">Reel løbetid</div>
+                <div class="result-value">${runtimeText}</div>
+            </div>
+        </div>
+        \${totalExtraPaid > 0 ? `<p style="margin-top:15px; font-size:0.9rem; color:var(--success);">💡 <b>Formue-effekt:</b> Du har afdraget <b>\${formatDKK(totalExtraPaid)} kr.</b> ekstraordinært, hvilket har forkortet dit lån!</p>` : ''}
     `;
 
-    // Opbyg den visuelle tabel under knappen
-    let html = `
-        <table>
-            <tr>
-                <th>År</th>
-                <th>Afdrag</th>
-                <th>Renter</th>
-                <th>Est. Rentefradrag (25%)</th>
-                <th>Restgæld</th>
-            </tr>
-    `;
-
+    let tbody = document.getElementById("schedule-body");
+    tbody.innerHTML = "";
+    
     yearlyData.forEach(r => {
-        html += `
-            <tr>
-                <td>År ${r.year}</td>
-                <td>${formatDKK(r.principal)} kr.</td>
-                <td>${formatDKK(r.interest)} kr.</td>
-                <td style="color: green;">${formatDKK(r.deduction)} kr.</td>
-                <td><b>${formatDKK(r.remain)} kr.</b></td>
-            </tr>
-        `;
+        let row = `<tr>
+            <td style="text-align: center; font-weight:bold;">År \${r.year}</td>
+            <td>\${formatDKK(r.principal)} kr.</td>
+            <td style="\${r.extra > 0 ? 'color: var(--primary); font-weight:600;' : ''}">\${formatDKK(r.extra)} kr.</td>
+            <td>\${formatDKK(r.interest)} kr.</td>
+            <td class="text-success">\${formatDKK(r.deduction)} kr.</td>
+            <td><b>\${formatDKK(r.remain)} kr.</b></td>
+        </tr>`;
+        tbody.innerHTML += row;
     });
 
-    html += "</table>";
-    document.getElementById("schedule").innerHTML = html;
+    document.getElementById("schedule-box").style.display = "block";
 }
 
-// Kør beregningen automatisk første gang siden indlæses
 calculate();
 </script>
 
