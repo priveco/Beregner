@@ -1,399 +1,211 @@
 <!DOCTYPE html>
-
 <html lang="da">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Amortiseringsberegner</title>
-
- 
+<title>Amortiseringsberegner med Rentefradrag</title>
 
 <style>
-
 body {
-
-font-family: Arial, sans-serif;
-
-max-width: 1000px;
-
-margin: auto;
-
-padding: 20px;
-
+    font-family: Arial, sans-serif;
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
 }
-
- 
 
 h1 {
-
-text-align: center;
-
+    text-align: center;
 }
 
- 
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
 
 input {
-
-width: 100%;
-
-padding: 8px;
-
-margin-bottom: 12px;
-
-box-sizing: border-box;
-
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
 }
-
- 
 
 button {
-
-background: #0078d4;
-
-color: white;
-
-border: none;
-
-padding: 10px 20px;
-
-cursor: pointer;
-
+    background: #0078d4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
 }
-
- 
 
 button:hover {
-
-background: #005ea6;
-
+    background: #005ea6;
 }
-
- 
 
 .result {
-
-margin-top: 20px;
-
-background: #f3f3f3;
-
-padding: 15px;
-
+    margin-top: 20px;
+    background: #f3f3f3;
+    padding: 15px;
+    border-left: 5px solid #0078d4;
 }
-
- 
 
 table {
-
-width: 100%;
-
-border-collapse: collapse;
-
-margin-top: 20px;
-
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
 }
-
- 
 
 th, td {
-
-border: 1px solid #ccc;
-
-padding: 8px;
-
-text-align: right;
-
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: right;
 }
-
- 
 
 th {
-
-background: #efefef;
-
+    background: #efefef;
 }
-
 </style>
-
 </head>
-
 <body>
-
- 
 
 <h1>Amortiseringsberegner</h1>
 
- 
-
 <label>Lånebeløb (kr.)</label>
-
 <input id="loan" type="number" value="2000000">
 
- 
-
 <label>Rente (%)</label>
-
 <input id="rate" type="number" step="0.01" value="4">
 
- 
-
 <label>Løbetid (år)</label>
-
 <input id="years" type="number" value="30">
 
- 
-
 <label>Ekstraordinært afdrag (kr.)</label>
-
 <input id="extra" type="number" value="0">
 
- 
-
-<button onclick="calculate()">Beregn</button>
-
- 
+<button onclick="calculate()">Beregn lån</button>
 
 <div id="result" class="result"></div>
-
- 
-
 <div id="schedule"></div>
 
- 
-
 <script>
-
- 
-
 function formatDKK(value) {
-
-return value.toLocaleString('da-DK', {
-
-minimumFractionDigits: 0,
-
-maximumFractionDigits: 0
-
-});
-
+    return value.toLocaleString('da-DK', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
 }
-
- 
 
 function calculate() {
+    let loan = parseFloat(document.getElementById("loan").value) || 0;
+    let annualRate = parseFloat(document.getElementById("rate").value) / 100;
+    let years = parseInt(document.getElementById("years").value) || 0;
+    let extra = parseFloat(document.getElementById("extra").value) || 0;
 
- 
+    let adjustedLoan = loan - extra;
 
-let loan = parseFloat(document.getElementById("loan").value);
+    if (adjustedLoan <= 0) {
+        alert("Afdrag og lån stemmer ikke overens, eller lånet er allerede betalt ud.");
+        return;
+    }
+    if (years <= 0) {
+        alert("Indtast venligst en gyldig løbetid i år.");
+        return;
+    }
 
-let annualRate = parseFloat(document.getElementById("rate").value) / 100;
+    let monthlyRate = annualRate / 12;
+    let months = years * 12;
+    let payment = 0;
 
-let years = parseInt(document.getElementById("years").value);
+    // SIKRING MOD O% RENTE: Hvis renten er 0, er ydelsen blot beløb divideret med måneder
+    if (monthlyRate === 0) {
+        payment = adjustedLoan / months;
+    } else {
+        payment = adjustedLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -months));
+    }
 
-let extra = parseFloat(document.getElementById("extra").value);
+    let balance = adjustedLoan;
+    let totalInterest = 0;
+    let totalTaxDeduction = 0; // Tilføjet rentefradrag-tæller
+    let yearlyData = [];
 
- 
+    for (let year = 1; year <= years; year++) {
+        let yearInterest = 0;
+        let yearPrincipal = 0;
 
-let adjustedLoan = loan - extra;
+        for (let m = 0; m < 12; m++) {
+            if (balance <= 0) break;
 
- 
+            let interest = balance * monthlyRate;
+            let principal = payment - interest;
 
-if (adjustedLoan <= 0) {
+            // Hvis det sidste afdrag er større end den resterende balance
+            if (principal > balance) {
+                principal = balance;
+            }
 
-alert("Afdrag kan ikke overstige lånet.");
+            balance -= principal;
+            yearInterest += interest;
+            yearPrincipal += principal;
+            totalInterest += interest;
+        }
 
-return;
+        // Beregn det danske rentefradrag (sat til gennemsnitligt 25% for nemhedens skyld)
+        let yearTaxDeduction = yearInterest * 0.25;
+        totalTaxDeduction += yearTaxDeduction;
 
+        yearlyData.push({
+            year: year,
+            principal: yearPrincipal,
+            interest: yearInterest,
+            deduction: yearTaxDeduction,
+            remain: Math.max(0, balance)
+        });
+
+        if (balance <= 0) break;
+    }
+
+    // Udskriv det samlede resultat øverst
+    document.getElementById("result").innerHTML = `
+        <h2>Resultat</h2>
+        <p><b>Månedlig ydelse (før skat):</b> ${formatDKK(payment)} kr.</p>
+        <p><b>Samlede renteudgifter:</b> ${formatDKK(totalInterest)} kr.</p>
+        <p><b>Estimeret samlet skattebesparelse (Rentefradrag):</b> ${formatDKK(totalTaxDeduction)} kr.</p>
+        <p><b>Ekstraordinært afdrag her og nu:</b> ${formatDKK(extra)} kr.</p>
+    `;
+
+    // Opbyg den visuelle tabel under knappen
+    let html = `
+        <table>
+            <tr>
+                <th>År</th>
+                <th>Afdrag</th>
+                <th>Renter</th>
+                <th>Est. Rentefradrag (25%)</th>
+                <th>Restgæld</th>
+            </tr>
+    `;
+
+    yearlyData.forEach(r => {
+        html += `
+            <tr>
+                <td>År ${r.year}</td>
+                <td>${formatDKK(r.principal)} kr.</td>
+                <td>${formatDKK(r.interest)} kr.</td>
+                <td style="color: green;">${formatDKK(r.deduction)} kr.</td>
+                <td><b>${formatDKK(r.remain)} kr.</b></td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    document.getElementById("schedule").innerHTML = html;
 }
 
- 
-
-let monthlyRate = annualRate / 12;
-
-let months = years * 12;
-
- 
-
-let payment =
-
-adjustedLoan *
-
-monthlyRate /
-
-(1 - Math.pow(1 + monthlyRate, -months));
-
- 
-
-let balance = adjustedLoan;
-
-let totalInterest = 0;
-
- 
-
-let yearlyData = [];
-
- 
-
-for (let year = 1; year <= years; year++) {
-
- 
-
-let yearInterest = 0;
-
-let yearPrincipal = 0;
-
- 
-
-for (let m = 0; m < 12; m++) {
-
- 
-
-let interest = balance * monthlyRate;
-
-let principal = payment - interest;
-
- 
-
-balance -= principal;
-
- 
-
-yearInterest += interest;
-
-yearPrincipal += principal;
-
-totalInterest += interest;
-
- 
-
-if (balance <= 0) {
-
-balance = 0;
-
-break;
-
-}
-
-}
-
- 
-
-yearlyData.push({
-
-year: year,
-
-principal: yearPrincipal,
-
-interest: yearInterest,
-
-remain: balance
-
-});
-
- 
-
-if (balance <= 0) {
-
-break;
-
-}
-
-}
-
- 
-
-document.getElementById("result").innerHTML =
-
-`
-
-<h2>Resultat</h2>
-
- 
-
-<p><b>Månedlig ydelse:</b> ${formatDKK(payment)} kr.</p>
-
- 
-
-<p><b>Samlede renter:</b>
-
-${formatDKK(totalInterest)} kr.</p>
-
- 
-
-<p><b>Ekstraordinært afdrag:</b>
-
-${formatDKK(extra)} kr.</p>
-
-`;
-
- 
-
-let html =
-
-`
-
-<table>
-
-<tr>
-
-<th>År</th>
-
-<th>Afdrag</th>
-
-<th>Renter</th>
-
-<th>Restgæld</th>
-
-</tr>
-
-`;
-
- 
-
-yearlyData.forEach(r => {
-
- 
-
-html += `
-
-<tr>
-
-<td>${r.year}</td>
-
-<td>${formatDKK(r.principal)}</td>
-
-<td>${formatDKK(r.interest)}</td>
-
-<td>${formatDKK(r.remain)}</td>
-
-</tr>
-
-`;
-
-});
-
- 
-
-html += "</table>";
-
- 
-
-document.getElementById("schedule").innerHTML = html;
-
-}
-
- 
-
+// Kør beregningen automatisk første gang siden indlæses
 calculate();
-
- 
-
 </script>
 
- 
-
 </body>
-
 </html>
