@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Professionel Amortiseringsberegner</title>
+<title>Professionel Amortiseringsberegner med Graf</title>
+
+<!-- Henter Chart.js til den visuelle graf -->
+<script src="https://jsdelivr.net"></script>
 
 <style>
 :root {
@@ -63,6 +66,7 @@ h1 {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border);
     height: fit-content;
+    margin-bottom: 20px;
 }
 
 .card-title {
@@ -147,9 +151,18 @@ button:hover {
     margin-top: 5px;
 }
 
+.chart-container {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+    margin-top: 20px;
+}
+
 .table-container {
     overflow-x: auto;
-    margin-top: 30px;
+    margin-top: 20px;
     background: var(--card-bg);
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -195,6 +208,7 @@ tr:hover td {
     <p class="subtitle">Få det fulde overblik over dine månedlige ydelser, renteudgifter og rentefradrag.</p>
 
     <div class="main-layout">
+        <!-- Venstre panel -->
         <div class="card">
             <div class="card-title">Indtast lånedata</div>
             
@@ -213,12 +227,20 @@ tr:hover td {
             <button onclick="calculate()">Beregn nu</button>
         </div>
 
+        <!-- Højre panel -->
         <div>
             <div class="card">
                 <div class="card-title">Oversigt over lånets omkostninger</div>
                 <div id="result"></div>
             </div>
 
+            <!-- Visuel Graf-boks -->
+            <div id="chart-box" class="chart-container" style="display:none;">
+                <div class="card-title" style="border:none; margin-bottom:10px;">Afvikling af restgæld</div>
+                <canvas id="loanChart"></canvas>
+            </div>
+
+            <!-- Tabel-boks -->
             <div id="schedule-box" class="table-container" style="display:none;">
                 <table id="schedule-table">
                     <thead>
@@ -237,8 +259,9 @@ tr:hover td {
         </div>
     </div>
 </div>
-
 <script>
+let myChart = null;
+
 function formatDKK(value) {
     return value.toLocaleString('da-DK', {
         minimumFractionDigits: 0,
@@ -272,7 +295,10 @@ function calculate() {
     let totalTaxDeduction = 0;
     let totalExtraPaid = 0;
     let actualMonthsCount = 0;
+    
     let yearlyData = [];
+    let chartLabels = ["Start"];
+    let chartData = [loan];
 
     let currentYearInterest = 0;
     let currentYearPrincipal = 0;
@@ -316,6 +342,9 @@ function calculate() {
                 remain: Math.max(0, balance)
             });
 
+            chartLabels.push("År " + yearCounter);
+            chartData.push(Math.max(0, balance));
+
             currentYearInterest = 0;
             currentYearPrincipal = 0;
             currentYearExtra = 0;
@@ -325,51 +354,82 @@ function calculate() {
 
     let actualYears = Math.floor(actualMonthsCount / 12);
     let actualMonths = actualMonthsCount % 12;
-    let runtimeText = `${actualYears} år og ${actualMonths} mdr.`;
-    if (actualMonthsCount === totalMonths) runtimeText = `${years} år`;
+    let runtimeText = actualYears + " år og " + actualMonths + " mdr.";
+    if (actualMonthsCount === totalMonths) runtimeText = years + " år";
 
-    document.getElementById("result").innerHTML = `
-        <div class="result-grid">
-            <div class="result-block">
-                <div class="result-label">Månedlig ydelse (før ekstra)</div>
-                <div class="result-value">${formatDKK(basePayment)} kr.</div>
-            </div>
-            <div class="result-block">
-                <div class="result-label">Samlede Renter</div>
-                <div class="result-value" style="color: #c62828;">${formatDKK(totalInterest)} kr.</div>
-            </div>
-            <div class="result-block success">
-                <div class="result-label">Estimeret Rentefradrag</div>
-                <div class="result-value text-success">${formatDKK(totalTaxDeduction)} kr.</div>
-            </div>
-            <div class="result-block">
-                <div class="result-label">Reel løbetid</div>
-                <div class="result-value">${runtimeText}</div>
-            </div>
-        </div>
-        \${totalExtraPaid > 0 ? `<p style="margin-top:15px; font-size:0.9rem; color:var(--success);">💡 <b>Formue-effekt:</b> Du har afdraget <b>\${formatDKK(totalExtraPaid)} kr.</b> ekstraordinært, hvilket har forkortet dit lån!</p>` : ''}
-    `;
+    document.getElementById("result").innerHTML = 
+        '<div class="result-grid">' +
+            '<div class="result-block">' +
+                '<div class="result-label">Månedlig ydelse (før ekstra)</div>' +
+                '<div class="result-value">' + formatDKK(basePayment) + ' kr.</div>' +
+            '</div>' +
+            '<div class="result-block">' +
+                '<div class="result-label">Samlede Renter</div>' +
+                '<div class="result-value" style="color: #c62828;">' + formatDKK(totalInterest) + ' kr.</div>' +
+            '</div>' +
+            '<div class="result-block success">' +
+                '<div class="result-label">Estimeret Rentefradrag</div>' +
+                '<div class="result-value text-success">' + formatDKK(totalTaxDeduction) + ' kr.</div>' +
+            '</div>' +
+            '<div class="result-block">' +
+                '<div class="result-label">Reel løbetid</div>' +
+                '<div class="result-value">' + runtimeText + '</div>' +
+            '</div>' +
+        '</div>' +
+        (totalExtraPaid > 0 ? '<p style="margin-top:15px; font-size:0.9rem; color:var(--success);">💡 <b>Formue-effekt:</b> Du har afdraget <b>' + formatDKK(totalExtraPaid) + ' kr.</b> ekstraordinært, hvilket har forkortet dit lån!</p>' : '');
 
     let tbody = document.getElementById("schedule-body");
     tbody.innerHTML = "";
     
-    yearlyData.forEach(r => {
-        let row = `<tr>
-            <td style="text-align: center; font-weight:bold;">År \${r.year}</td>
-            <td>\${formatDKK(r.principal)} kr.</td>
-            <td style="\${r.extra > 0 ? 'color: var(--primary); font-weight:600;' : ''}">\${formatDKK(r.extra)} kr.</td>
-            <td>\${formatDKK(r.interest)} kr.</td>
-            <td class="text-success">\${formatDKK(r.deduction)} kr.</td>
-            <td><b>\${formatDKK(r.remain)} kr.</b></td>
-        </tr>`;
+    yearlyData.forEach(function(r) {
+        let row = '<tr>' +
+            '<td style="text-align: center; font-weight:bold;">År ' + r.year + '</td>' +
+            '<td>' + formatDKK(r.principal) + ' kr.</td>' +
+            '<td style="' + (r.extra > 0 ? 'color: var(--primary); font-weight:600;' : '') + '">' + formatDKK(r.extra) + ' kr.</td>' +
+            '<td>' + formatDKK(r.interest) + ' kr.</td>' +
+            '<td class="text-success">' + formatDKK(r.deduction) + ' kr.</td>' +
+            '<td><b>' + formatDKK(r.remain) + ' kr.</b></td>' +
+        '</tr>';
         tbody.innerHTML += row;
     });
 
     document.getElementById("schedule-box").style.display = "block";
+    document.getElementById("chart-box").style.display = "block";
+
+    let ctx = document.getElementById('loanChart').getContext('2d');
+    if (myChart) {
+        myChart.destroy();
+    }
+    
+    myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Restgæld ultimo (kr.)',
+                data: chartData,
+                borderColor: '#005ea6',
+                backgroundColor: 'rgba(0, 94, 166, 0.1)',
+                fill: true,
+                tension: 0.1,
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return value.toLocaleString('da-DK') + ' kr.'; }
+                    }
+                }
+            }
+        }
+    });
 }
 
 calculate();
 </script>
-
 </body>
 </html>
