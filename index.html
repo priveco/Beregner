@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avanceret Låneberegner med Spareradar</title>
+<title>Avanceret Låneberegner - optimeret til privatøkonomi</title>
 
 <!-- Godkendt og sikker CDN-forbindelse til grafen -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -43,9 +43,10 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
 
 <div class="container">
     <h1>Låne- & Amortiseringsberegner</h1>
-    <p class="subtitle">Beregn dine månedlige ydelser og se din præcise gevinst ved at afdrage ekstraordinært.</p>
+    <p class="subtitle">Beregn dine månedlige ydelser og vælg bankstrategi for dine ekstraordinære afdrag.</p>
 
     <div class="main-layout">
+        <!-- Kompakt inputpanel i venstre side -->
         <div class="card">
             <div class="card-title">Indtast lånedata</div>
             
@@ -58,7 +59,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
             <label for="years">Løbetid (år)</label>
             <input id="years" type="number" value="30">
             
-            <label for="extraType">Type af ekstra afdrag</label>
+            <label for="extraType">Frekvens af ekstra afdrag</label>
             <select id="extraType">
                 <option value="monthly">Hver måned (Fast beløb)</option>
                 <option value="onetime">Engangsbeløb (Her og nu)</option>
@@ -66,10 +67,17 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
             
             <label for="extra">Ekstraordinært beløb (kr.)</label>
             <input id="extra" type="number" value="1000">
+
+            <label for="strategy">Bankens strategi efter afdrag</label>
+            <select id="strategy">
+                <option value="shorten">Afkort løbetid (Behold samme månedlige ydelse)</option>
+                <option value="lower_payment">Sænk månedlig ydelse (Fasthold slutdato)</option>
+            </select>
             
             <button onclick="calculate()">Beregn nu</button>
         </div>
 
+        <!-- Resultatpaneler i højre side -->
         <div>
             <div class="card">
                 <div class="card-title">Oversigt over lånets omkostninger</div>
@@ -78,9 +86,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
             
             <div id="chart-box" class="card" style="display:none;">
                 <div class="card-title">Afvikling af restgæld over tid</div>
-                <div style="position: relative; height:320px; width:100%;">
-                    <canvas id="loanChart"></canvas>
-                </div>
+                <canvas id="loanChart" style="max-height: 320px; width: 100%;"></canvas>
             </div>
             
             <div id="schedule-box" class="table-container" style="display:none;">
@@ -106,23 +112,29 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
 let myChart = null;
 function formatDKK(v) { return Math.round(v).toLocaleString('da-DK') + ' kr.'; }
 
-function runSim(loan, rate, totalMonths, extra, extraType) {
+function runSim(loan, rate, totalMonths, extra, extraType, strategy) {
     let bal = loan, totInt = 0, totDed = 0, mCount = 0, yData = [];
     let yInt = 0, yPri = 0, yExt = 0, yCount = 1;
-    let pmt = rate === 0 ? loan / totalMonths : loan * rate / (1 - Math.pow(1 + rate, -totalMonths));
+    
+    let basePmt = rate === 0 ? loan / totalMonths : loan * rate / (1 - Math.pow(1 + rate, -totalMonths));
+    let currentPmt = basePmt;
     let cData = [loan];
 
     if (extraType === 'onetime' && extra > 0) {
         let firstCut = Math.min(extra, bal);
         bal -= firstCut;
         yExt += firstCut;
+        
+        if (strategy === 'lower_payment' && bal > 0) {
+            currentPmt = rate === 0 ? bal / totalMonths : bal * rate / (1 - Math.pow(1 + rate, -totalMonths));
+        }
     }
 
     for (let m = 1; m <= totalMonths; m++) {
         if (bal <= 0) break;
         mCount++;
         let intr = bal * rate;
-        let prin = pmt - intr;
+        let prin = currentPmt - intr;
         if (prin > bal) prin = bal;
         bal -= prin;
 
@@ -131,6 +143,11 @@ function runSim(loan, rate, totalMonths, extra, extraType) {
             extApp = Math.min(extra, bal);
             bal -= extApp;
             yExt += extApp;
+            
+            if (strategy === 'lower_payment' && bal > 0 && (totalMonths - m) > 0) {
+                let remMonths = totalMonths - m;
+                currentPmt = rate === 0 ? bal / remMonths : bal * rate / (1 - Math.pow(1 + rate, -remMonths));
+            }
         }
         yInt += intr; yPri += prin; totInt += intr;
 
@@ -141,7 +158,7 @@ function runSim(loan, rate, totalMonths, extra, extraType) {
             yInt = 0; yPri = 0; yExt = 0; yCount++;
         }
     }
-    return { totInt: totInt, totDed: totDed, mCount: mCount, yData: yData, cData: cData, pmt: pmt };
+    return { totInt: totInt, totDed: totDed, mCount: mCount, yData: yData, cData: cData, finalPmt: currentPmt, startPmt: basePmt };
 }
 
 function calculate() {
@@ -151,21 +168,27 @@ function calculate() {
     let totalMonths = years * 12;
     let extra = parseFloat(document.getElementById("extra").value) || 0;
     let extraType = document.getElementById("extraType").value;
+    let strategy = document.getElementById("strategy").value;
 
     if (loan <= 0 || totalMonths <= 0) { alert("Indtast venligst gyldige tal."); return; }
 
-    let simNormal = runSim(loan, rate, totalMonths, 0, 'monthly');
-    let simExtra = runSim(loan, rate, totalMonths, extra, extraType);
+    let simNormal = runSim(loan, rate, totalMonths, 0, 'monthly', 'shorten');
+    let simExtra = runSim(loan, rate, totalMonths, extra, extraType, strategy);
 
     let rText = Math.floor(simExtra.mCount/12) + " år og " + (simExtra.mCount%12) + " mdr.";
     if (simExtra.mCount === totalMonths) rText = years + " år";
 
-    let resultHTML = '<div class="result-grid">' +
-        '<div class="result-block"><div class="result-label">Månedlig ordinær ydelse</div><div class="result-value">' + formatDKK(simExtra.pmt) + '</div></div>' +
-        '<div class="result-block"><div class="result-label">Samlede Renter</div><div class="result-value" style="color:#c62828;">' + formatDKK(simExtra.totInt) + '</div></div>' +
-        '<div class="result-block success"><div class="result-label">Est. Rentefradrag</div><div class="result-value text-success">' + formatDKK(simExtra.totDed) + '</div></div>' +
-        '<div class="result-block"><div class="result-label">Reel løbetid</div><div class="result-value">' + rText + '</div></div>' +
-    '</div>';
+    let ydelseLabel = strategy === 'lower_payment' && extra > 0 ? 'Ny månedlig ydelse (Slut)' : 'Månedlig ordinær ydelse';
+    let ydelseValue = strategy === 'lower_payment' && extra > 0 ? formatDKK(simExtra.finalPmt) : formatDKK(simExtra.startPmt);
+
+    document.getElementById("result").innerHTML = `
+        <div class="result-grid">
+            <div class="result-block"><div class="result-label">` + ydelseLabel + `</div><div class="result-value">` + ydelseValue + `</div></div>
+            <div class="result-block"><div class="result-label">Samlede Renter</div><div class="result-value" style="color:#c62828;">` + formatDKK(simExtra.totInt) + `</div></div>
+            <div class="result-block success"><div class="result-label">Est. Rentefradrag</div><div class="result-value text-success">` + formatDKK(simExtra.totDed) + `</div></div>
+            <div class="result-block"><div class="result-label">Reel løbetid</div><div class="result-value">` + rText + `</div></div>
+        </div>
+    `;
 
     if (extra > 0) {
         let renteBesparelse = simNormal.totInt - simExtra.totInt;
@@ -177,32 +200,25 @@ function calculate() {
         if (aarSparet > 0) tidsText += aarSparet + " år ";
         if (resterendeMdrSparet > 0) tidsText += resterendeMdrSparet + " mdr.";
 
-        if (renteBesparelse > 0 || mdrSparet > 0) {
-            let typeNavn = extraType === 'monthly' ? 'at indbetale ' + formatDKK(extra) + ' ekstra hver måned' : 'at lave en her-og-nu indbetaling på ' + formatDKK(extra);
-            resultHTML += '<div class="savings-box">' +
-                '<h3 style="margin:0 0 5px 0; color:var(--success); font-size:1.1rem;">🎉 Økonomisk gevinst ved denne manøvre:</h3>' +
-                '<p style="margin:0; font-size:0.95rem;">' +
-                    'Ved ' + typeNavn + ', sparer du i alt ' +
-                    '<span class="text-success" style="font-size:1.1rem;"><b>' + formatDKK(renteBesparelse) + '</b></span> i renteudgifter til banken, ' +
-                    'og du bliver gældfri <span class="text-success"><b>' + tidsText + '</b></span> før tid!' +
-                '</p>' +
-            '</div>';
+        let forklaringText = "";
+        if (strategy === 'shorten') {
+            forklaringText = "Da du beholder din oprindelige månedlige ydelse, sparer du i alt <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i renteudgifter og skærer <span class='text-success'><b>" + tidsText + "</b></span> af lånets løbetid!";
+        } else {
+            let ydelseRabat = simExtra.startPmt - simExtra.finalPmt;
+            forklaringText = "Da du fastholder din slutdato, vil din månedlige ydelse falde gradvist. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samlede renter, og din månedlige udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b> (en besparelse på " + formatDKK(ydelseRabat) + "/mdr. ift. start)!";
         }
+
+        document.getElementById("result").innerHTML += `
+            <div class="savings-box">
+                <h3 style="margin:0 0 5px 0; color:var(--success); font-size:1.1rem;">🎉 Gevinst ved din valgte bankstrategi:</h3>
+                <p style="margin:0; font-size:0.95rem;">` + forklaringText + `</p>
+            </div>
+        `;
     }
-    
-    document.getElementById("result").innerHTML = resultHTML;
 
     let html = "";
     simExtra.yData.forEach(function(r) {
-        let extraStyle = r.e > 0 ? 'color:var(--primary);font-weight:600;' : '';
-        html += '<tr>' +
-            '<td style="text-align:center;font-weight:bold;">År ' + r.y + '</td>' +
-            '<td>' + formatDKK(r.p) + '</td>' +
-            '<td style="' + extraStyle + '">' + formatDKK(r.e) + '</td>' +
-            '<td>' + formatDKK(r.i) + '</td>' +
-            '<td class="text-success">' + formatDKK(r.d) + '</td>' +
-            '<td><b>' + formatDKK(r.r) + '</b></td>' +
-        '</tr>';
+        html += `<tr><td style="text-align:center;font-weight:bold;">År ${r.y}</td><td>${formatDKK(r.p)}</td><td style="${r.e>0?'color:var(--primary);font-weight:600;':''}">${formatDKK(r.e)}</td><td>${formatDKK(r.i)}</td><td class="text-success">${formatDKK(r.d)}</td><td><b>${formatDKK(r.r)}</b></td></tr>`;
     });
     document.getElementById("schedule-body").innerHTML = html;
     document.getElementById("schedule-box").style.display = "block";
@@ -216,30 +232,8 @@ function calculate() {
     
     myChart = new Chart(ctx, {
         type: 'line',
-        data: { 
-            labels: cLabels, 
-            datasets: [{ 
-                label: 'Restgæld (kr.)', 
-                data: simExtra.cData, 
-                borderColor: '#005ea6', 
-                backgroundColor: 'rgba(0, 94, 166, 0.1)', 
-                fill: true, 
-                tension: 0.1, 
-                borderWidth: 3 
-            }] 
-        },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            scales: { 
-                y: { 
-                    beginAtZero: true, 
-                    ticks: { 
-                        callback: function(val) { return val.toLocaleString('da-DK') + ' kr.'; } 
-                    } 
-                } 
-            } 
-        }
+        data: { labels: cLabels, datasets: [{ label: 'Restgæld (kr.)', data: simExtra.cData, borderColor: '#005ea6', backgroundColor: 'rgba(0, 94, 166, 0.1)', fill: true, tension: 0.1, borderWidth: 3 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function(val) { return val.toLocaleString('da-DK') + ' kr.'; } } } } }
     });
 }
 calculate();
