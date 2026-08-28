@@ -3,18 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avanceret Låneberegner - optimeret til privatøkonomi</title>
+<title>ØkonomiPortalen - Lån, Skat & Aktier</title>
 
 <!-- Godkendt og sikker CDN-forbindelse til grafen -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
 <style>
-:root { --primary: #005ea6; --primary-hover: #00447a; --success: #2e7d32; --bg: #f4f6f9; --card-bg: #ffffff; --text: #333333; --border: #e0e0e0; }
-body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
-.container { max-width: 1200px; margin: 20px auto; }
+:root { 
+    --primary: #005ea6; 
+    --primary-hover: #00447a; 
+    --success: #2e7d32; 
+    --bg: #f4f6f9; 
+    --card-bg: #ffffff; 
+    --text: #333333; 
+    --border: #e0e0e0; 
+}
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 0; margin: 0; }
+
+/* Navigation og Header */
+header { background: #ffffff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+.nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+.logo { font-weight: bold; font-size: 1.3rem; color: var(--primary); }
+nav { display: flex; gap: 10px; }
+nav button { background: none; color: #555; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; width: auto; margin: 0; }
+nav button:hover { background: #f0f2f5; color: var(--primary); }
+nav button.active { background: var(--primary); color: white; }
+
+.container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
 h1, .subtitle { text-align: center; margin-bottom: 5px; }
 .subtitle { color: #666; margin-bottom: 30px; }
 
+/* Side-styring (Skjul ikke-aktive sider) */
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* Layouts og Komponenter */
 .main-layout { display: grid; grid-template-columns: 1fr; gap: 25px; align-items: start; }
 @media (min-width: 768px) { .main-layout { grid-template-columns: 320px 1fr; } }
 
@@ -37,115 +60,203 @@ table { width: 100%; border-collapse: collapse; text-align: right; }
 th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
 th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
 .text-success { color: var(--success); font-weight: 600; }
+
+.info-text { line-height: 1.6; color: #444; font-size: 0.95rem; }
+.info-text ul { padding-left: 20px; }
+.info-text li { margin-bottom: 8px; }
 </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Låne- & Amortiseringsberegner</h1>
-    <p class="subtitle">Beregn dine månedlige ydelser og vælg bankstrategi for dine ekstraordinære afdrag.</p>
-
-    <div class="main-layout">
-        <!-- Adskilte inputpaneler i venstre side -->
-        <div>
-            <!-- KASSE 1: Nødvendige lånedata -->
-            <div class="card">
-                <div class="card-title">Nødvendige lånedata</div>
-                
-                <label for="loan">Lånebeløb (kr.)</label>
-                <input id="loan" type="number" value="2000000">
-                
-                <label for="rate">Årlig rente (%)</label>
-                <input id="rate" type="number" step="0.01" value="4">
-                
-                <label for="years">Løbetid (år)</label>
-                <input id="years" type="number" value="30">
-
-                <label for="frequency">Afdragsfrekvens</label>
-                <select id="frequency">
-                    <option value="12">Månedlig</option>
-                    <option value="4">Kvartalsmæssig</option>
-                </select>
-                
-                <!-- Ny beregningsknap indsat under de obligatoriske variable -->
-                <button onclick="calculate()">Beregn nu</button>
-            </div>
-
-            <!-- KASSE 2: Valgfri ekstraordinær indbetaling -->
-            <div class="card">
-                <div class="card-title">Valgfri ekstraordinær indbetaling</div>
-                
-                <label for="extraType">Frekvens af ekstra afdrag</label>
-                <select id="extraType">
-                    <option value="monthly">Hver måned / termin (Fast beløb)</option>
-                    <option value="onetime">Engangsbeløb (Her og nu)</option>
-                </select>
-                
-                <label for="extra">Ekstraordinært beløb (kr.)</label>
-                <input id="extra" type="number" value="0">
-
-                <label for="strategy">Bankens strategi efter afdrag</label>
-                <select id="strategy">
-                    <option value="shorten">Afkort løbetid (Behold samme månedlige ydelse)</option>
-                    <option value="lower_payment">Sænk månedlig ydelse (Fasthold slutdato)</option>
-                </select>
-                
-                <button onclick="calculate()">Beregn nu</button>
-            </div>
-        </div>
-
-        <!-- Resultatpaneler i højre side -->
-        <div>
-            <div class="card">
-                <div class="card-title">Oversigt over lånets omkostninger</div>
-                <div id="result">Indtast data og tryk beregn for at se resultatet.</div>
-            </div>
-            
-            <div id="chart-box" class="card" style="display:none;">
-                <div class="card-title">Afvikling af restgæld over tid</div>
-                <canvas id="loanChart" style="max-height: 320px; width: 100%;"></canvas>
-            </div>
-            
-            <div id="schedule-box" class="table-container" style="display:none;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th id="th-term" style="text-align:center;">Termin</th>
-                            <th>Ordinært Afdrag</th>
-                            <th>Ekstraordinært Afdrag</th>
-                            <th>Renter</th>
-                            <th>Rentefradrag (25%)</th>
-                            <th>Restgæld ultimo</th>
-                        </tr>
-                    </thead>
-                    <tbody id="schedule-body"></tbody>
-                </table>
-            </div>
-        </div>
+<header>
+    <div class="nav-container">
+        <div class="logo">📈 ØkonomiPortalen</div>
+        <nav>
+            <button id="btn-loan" class="active" onclick="switchPage('loan-page', 'btn-loan')">Låneberegner</button>
+            <button id="btn-deduction" onclick="switchPage('deduction-page', 'btn-deduction')">Rentefradrag</button>
+            <button id="btn-stock" onclick="switchPage('stock-page', 'btn-stock')">Aktieskat</button>
+        </nav>
     </div>
+</header>
+
+<div class="container">
+
+    <!-- ================= SIDER 1: LÅNEBEREGNER ================= -->
+    <section id="loan-page" class="page-section active">
+        <h1>Låne- & Amortiseringsberegner</h1>
+        <p class="subtitle">Beregn dine månedlige ydelser og vælg bankstrategi for dine ekstraordinære afdrag.</p>
+
+        <div class="main-layout">
+            <div>
+                <div class="card">
+                    <div class="card-title">Nødvendige lånedata</div>
+                    <label for="loan">Lånebeløb (kr.)</label>
+                    <input id="loan" type="number" value="2000000">
+                    <label for="rate">Årlig rente (%)</label>
+                    <input id="rate" type="number" step="0.01" value="4">
+                    <label for="years">Løbetid (år)</label>
+                    <input id="years" type="number" value="30">
+                    <label for="frequency">Afdragsfrekvens</label>
+                    <select id="frequency">
+                        <option value="12">Månedlig</option>
+                        <option value="4">Kvartalsmæssig</option>
+                    </select>
+                    <button onclick="calculate()">Beregn nu</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Valgfri ekstraordinær indbetaling</div>
+                    <label for="extraType">Frekvens af ekstra afdrag</label>
+                    <select id="extraType">
+                        <option value="monthly">Hver måned / termin (Fast beløb)</option>
+                        <option value="onetime">Engangsbeløb (Her og nu)</option>
+                    </select>
+                    <label for="extra">Ekstraordinært beløb (kr.)</label>
+                    <input id="extra" type="number" value="0">
+                    <label for="strategy">Bankens strategi efter afdrag</label>
+                    <select id="strategy">
+                        <option value="shorten">Afkort løbetid (Behold samme månedlige ydelse)</option>
+                        <option value="lower_payment">Sænk månedlig ydelse (Fasthold slutdato)</option>
+                    </select>
+                    <button onclick="calculate()">Beregn nu</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <div class="card-title">Oversigt over lånets omkostninger</div>
+                    <div id="result">Indtast data og tryk beregn for at se resultatet.</div>
+                </div>
+                <div id="chart-box" class="card" style="display:none;">
+                    <div class="card-title">Afvikling af restgæld over tid</div>
+                    <canvas id="loanChart" style="max-height: 320px; width: 100%;"></canvas>
+                </div>
+                <div id="schedule-box" class="table-container" style="display:none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th id="th-term" style="text-align:center;">Termin</th>
+                                <th>Ordinært Afdrag</th>
+                                <th>Ekstraordinært Afdrag</th>
+                                <th>Renter</th>
+                                <th>Rentefradrag (25%)</th>
+                                <th>Restgæld ultimo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= SIDER 2: RENTEFRADRAG ================= -->
+    <section id="deduction-page" class="page-section">
+        <h1>Forstå Rentefradrag</h1>
+        <p class="subtitle">Få overblik over reglerne, og beregn din reelle skattebesparelse.</p>
+
+        <div class="main-layout">
+            <div class="card">
+                <div class="card-title">Hurtig Fradragsberegner</div>
+                <label for="deduct-interest">Dine årlige renteudgifter (kr.)</label>
+                <input id="deduct-interest" type="number" value="50000">
+                
+                <label for="civil-status">Civilstatus</label>
+                <select id="civil-status" onchange="calcDeduction()">
+                    <option value="single">Enlig</option>
+                    <option value="married">Gift / Samlevende</option>
+                </select>
+                <button onclick="calcDeduction()">Beregn fradragets værdi</button>
+                
+                <div id="deduct-result" style="margin-top:20px; display:none;">
+                    <div class="result-block success">
+                        <div class="result-label">Reel skattebesparelse pr. år</div>
+                        <div id="deduct-value" class="result-value text-success">0 kr.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card info-text">
+                <div class="card-title">Hvordan fungerer rentefradraget?</div>
+                <p>Når du betaler renter på f.eks. et realkreditlån, banklån eller forbrugslån, får du automatisk et fradrag i skat. Det betyder, at staten betaler en del af dine renteudgifter for dig ved at sænke din indkomstskat.</p>
+                
+                <h4 style="color:var(--primary); margin-bottom:5px;">Værdien af fradraget:</h4>
+                <ul>
+                    <li><b>Under 50.000 kr. (100.000 kr. for par):</b> Skatteværdien er ca. <b>33,6%</b>. For hver 1.000 kr. du betaler i rente, sparer du ca. 336 kr. i skat.</li>
+                    <li><b>Over grænsen (Modregningsbeløb):</b> Renteudgifter herover har en lavere skatteværdi på ca. <b>21,6%</b> på grund af det gradvise fald i det personlige fradrag.</li>
+                </ul>
+                <p><i>Bemærk: Bankerne indberetter automatisk dine renter til SKAT, men husk altid at tjekke din forskudsopgørelse, så du får fradraget løbende hver måned i stedet for først til årsopgørelsen!</i></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= SIDER 3: AKTAKTIER & BESKATNING ================= -->
+    <section id="stock-page" class="page-section">
+        <h1>Beskatning af Aktier</h1>
+        <p class="subtitle">Lær reglerne for aktieindkomst og beregn din skat ved realisering.</p>
+
+        <div class="main-layout">
+            <div class="card">
+                <div class="card-title">Aktieskat-Beregner</div>
+                <label for="stock-profit">Årlig aktiegevinst / udbytte (kr.)</label>
+                <input id="stock-profit" type="number" value="80000">
+                <button onclick="calcStockTax()">Beregn skat</button>
+                
+                <div id="stock-result" style="margin-top:20px; display:none;">
+                    <div class="result-block" style="border-top-color: #c62828;">
+                        <div class="result-label">Skat der skal betales</div>
+                        <div id="stock-tax-value" class="result-value" style="color:#c62828;">0 kr.</div>
+                    </div>
+                    <div class="result-block success" style="margin-top:10px;">
+                        <div class="result-label">Gevinst efter skat</div>
+                        <div id="stock-net-value" class="result-value text-success">0 kr.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card info-text">
+                <div class="card-title">De danske regler for aktieskat</div>
+                <p>I Danmark bliver gevinster på aktier (både kursgevinster og udbytter) beskattet efter **progressionsprincippet**. Det betyder, at skatteprocenten stiger, jo mere du tjener.</p>
+                
+                <h4 style="color:var(--primary); margin-bottom:5px;">Progressive Knækgrænser:</h4>
+                <ul>
+                    <li>Gevinster <b>op til 61.100 kr.</b> beskattes med <b>27%</b>.</li>
+                    <li>Gevinster <b>over 61.100 kr.</b> beskattes med <b>42%</b>.</li>
+                </ul>
+                <p>Hvis du er gift, overføres uudnyttet bundfradrag automatisk til din ægtefælle, hvilket betyder at I sammen kan tjene op til 122.200 kr. til den lave sats på 27%.</p>
+                
+                <h4 style="color:var(--primary); margin-bottom:5px;">💡 Eksempel (80.000 kr. i gevinst):</h4>
+                <p>De første 61.100 kr. koster 27% i skat (16.497 kr.).<br>De resterende 18.900 kr. koster 42% i skat (7.938 kr.).<br><b>Samlet skat: 24.435 kr.</b></p>
+            </div>
+        </div>
+    </section>
+
 </div>
 
 <script>
+// ================= NAVIGATIONS LOGIK =================
+function switchPage(pageId, btnId) {
+    document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(pageId).classList.add('active');
+    document.getElementById(btnId).classList.add('active');
+}
+
+// ================= SIDE 1: LÅNELOGIK =================
 let myChart = null;
 function formatDKK(v) { return Math.round(v).toLocaleString('da-DK') + ' kr.'; }
 
-// Funktion til at generere pæne datolabels baseret på dags dato
 function getMonthYearLabel(index, freq) {
     const months = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"];
     let d = new Date();
-    
-    if (freq === 12) {
-        d.setMonth(d.getMonth() + index);
-    } else {
-        d.setMonth(d.getMonth() + (index * 3));
-    }
-    
+    if (freq === 12) { d.setMonth(d.getMonth() + index); } 
+    else { d.setMonth(d.getMonth() + (index * 3)); }
     return months[d.getMonth()] + ". " + d.getFullYear();
 }
 
 function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
     let bal = loan, totInt = 0, totDed = 0, mCount = 0, tData = [];
-    
     let basePmt = rate === 0 ? loan / totalMonths : loan * rate / (1 - Math.pow(1 + rate, -totalMonths));
     let currentPmt = basePmt;
     let cData = [loan];
@@ -154,7 +265,6 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
     if (extraType === 'onetime' && extra > 0) {
         let firstCut = Math.min(extra, bal);
         bal -= firstCut;
-        
         if (strategy === 'lower_payment' && bal > 0) {
             currentPmt = rate === 0 ? bal / totalMonths : bal * rate / (1 - Math.pow(1 + rate, -totalMonths));
         }
@@ -183,13 +293,13 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
         }
         
         totInt += intr;
-        let yDed = intr * 0.25; 
+        let yDed = intr * 0.25;
         totDed += yDed;
 
         let dateText = getMonthYearLabel(m, freq);
         dLabels.push(dateText);
 
-        tData.push({ label: dateText, p: prin, e: extApp, i: intr, d: yDed, r: bal });
+        tData.push({ label: dateText, p: prin, e: extApp, i: intr, d: yDed, r: Math.max(0, bal) });
         cData.push(Math.max(0, bal));
     }
     return { totInt: totInt, totDed: totDed, mCount: mCount, tData: tData, cData: cData, finalPmt: currentPmt, startPmt: basePmt, dLabels: dLabels };
@@ -205,7 +315,7 @@ function calculate() {
     let extraType = document.getElementById("extraType").value;
     let strategy = document.getElementById("strategy").value;
 
-    if (loan <= 0 || totalMonths <= 0) { alert("Indtast venligst gyldige tal."); return; }
+    if (loan <= 0 || totalMonths <= 0) { return; }
 
     let simNormal = runSim(loan, rate, totalMonths, 0, 'monthly', 'shorten', freq);
     let simExtra = runSim(loan, rate, totalMonths, extra, extraType, strategy, freq);
@@ -223,7 +333,6 @@ function calculate() {
     let frekvensNavn = freq === 12 ? 'månedlig' : 'kvartalsmæssig';
     let ydelseLabel = strategy === 'lower_payment' && extra > 0 ? 'Ny ydelse (' + frekvensNavn + ', slut)' : 'Ordinær ydelse (' + frekvensNavn + ')';
     let ydelseValue = strategy === 'lower_payment' && extra > 0 ? formatDKK(simExtra.finalPmt) : formatDKK(simExtra.startPmt);
-
     let samletTilbagebetaling = loan + simExtra.totInt;
 
     document.getElementById("th-term").innerText = freq === 12 ? "Måned" : "Kvartal";
@@ -249,25 +358,15 @@ function calculate() {
         let mdrSparet = freq === 12 ? terminerSparet : terminerSparet * 3;
         let aarSparet = Math.floor(mdrSparet / 12);
         let resterendeMdrSparet = mdrSparet % 12;
-        
         let tidsText = "";
         if (aarSparet > 0) tidsText += aarSparet + " år ";
         if (resterendeMdrSparet > 0) tidsText += resterendeMdrSparet + " mdr.";
 
-        let forklaringText = "";
-        if (strategy === 'shorten') {
-            forklaringText = "Da du beholder din oprindelige månedlige ydelse, sparer du i alt <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i renteudgifter og skærer <span class='text-success'><b>" + tidsText + "</b></span> af lånets løbetid!";
-        } else {
-            let ydelseRabat = simExtra.startPmt - simExtra.finalPmt;
-            forklaringText = "Da du fastholder din slutdato, vil din månedlige udgift falde løbende efter indbetalingen. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samlede renter, og din månedlige udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b> (en besparelse på " + formatDKK(ydelseRabat) + "/termin ift. start)!";
-        }
-
-        document.getElementById("result").innerHTML += `
-            <div class="savings-box">
-                <h3 style="margin:0 0 5px 0; color:var(--success); font-size:1.1rem;">🎉 Gevinst ved din valgte bankstrategi:</h3>
-                <p style="margin:0; font-size:0.95rem;">` + forklaringText + `</p>
-            </div>
-        `;
+        let forklaringText = strategy === 'shorten' 
+            ? "Da du beholder din oprindelige månedlige ydelse, sparer du i alt <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i renteudgifter og skærer <span class='text-success'><b>" + tidsText + "</b></span> af lånets løbetid!"
+            : "Da du fastholder din slutdato, vil din månedlige udgift falde løbende efter indbetalingen. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samlede renter, og din månedlige udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b>!";
+        
+        document.getElementById("result").innerHTML += `<div class="savings-box"><h3 style="margin:0 0 5px 0; color:var(--success); font-size:1.1rem;">🎉 Gevinst:</h3><p style="margin:0; font-size:0.95rem;">${forklaringText}</p></div>`;
     }
 
     let html = "";
@@ -280,34 +379,55 @@ function calculate() {
 
     let ctx = document.getElementById('loanChart').getContext('2d');
     if (myChart) { myChart.destroy(); }
-    
     myChart = new Chart(ctx, {
         type: 'line',
         data: { 
             labels: simExtra.dLabels, 
-            datasets: [{ 
-                label: 'Restgæld (kr.)', 
-                data: simExtra.cData, 
-                borderColor: '#005ea6', 
-                backgroundColor: 'rgba(0, 94, 166, 0.1)', 
-                fill: true, 
-                tension: 0.1, 
-                borderWidth: 3 
-            }] 
+            datasets: [{ label: 'Restgæld (kr.)', data: simExtra.cData, borderColor: '#005ea6', backgroundColor: 'rgba(0, 94, 166, 0.1)', fill: true, tension: 0.1, borderWidth: 3 }] 
         },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            scales: { 
-                y: { 
-                    beginAtZero: true, 
-                    ticks: { callback: function(val) { return val.toLocaleString('da-DK') + ' kr.'; } } 
-                } 
-            } 
-        }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function(val) { return val.toLocaleString('da-DK') + ' kr.'; } } } } }
     });
 }
+
+// ================= SIDE 2: RENTEFRADRAGSLOGIK =================
+function calcDeduction() {
+    let interest = parseFloat(document.getElementById("deduct-interest").value) || 0;
+    let status = document.getElementById("civil-status").value;
+    let limit = status === 'single' ? 50000 : 100000;
+    let taxValue = 0;
+    
+    if (interest <= limit) {
+        taxValue = interest * 0.336;
+    } else {
+        taxValue = (limit * 0.336) + ((interest - limit) * 0.216);
+    }
+    
+    document.getElementById("deduct-value").innerText = formatDKK(taxValue);
+    document.getElementById("deduct-result").style.display = "block";
+}
+
+// ================= SIDE 3: AKTIESKATSLOGIK =================
+function calcStockTax() {
+    let profit = parseFloat(document.getElementById("stock-profit").value) || 0;
+    const limit = 61100;
+    let tax = 0;
+    
+    if (profit <= limit) {
+        tax = profit * 0.27;
+    } else {
+        tax = (limit * 0.27) + ((profit - limit) * 0.42);
+    }
+    
+    let netProfit = profit - tax;
+    
+    document.getElementById("stock-tax-value").innerText = formatDKK(tax);
+    document.getElementById("stock-net-value").innerText = formatDKK(netProfit);
+    document.getElementById("stock-result").style.display = "block";
+}
+
 calculate();
+calcDeduction();
+calcStockTax();
 </script>
 </body>
 </html>
