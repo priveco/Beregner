@@ -44,7 +44,7 @@ h1, .subtitle { text-align: center; margin-bottom: 5px; }
 .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; }
 .card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 15px 0; border-bottom: 2px solid var(--bg); padding-bottom: 8px; }
 label { font-weight: 600; display: block; margin-top: 12px; font-size: 0.85rem; }
-input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; margin-top: 4px; font-size: 0.95rem; width: 100%; }
+input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; margin-top: 4px; font-size: 0.95rem; }
 button { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 20px; font-size: 1rem; }
 button:hover { background: var(--primary-hover); }
 
@@ -233,13 +233,12 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
                 <h4>1. Realisationsprincippet (Almindeligt depot)</h4>
                 <p>Du betaler først skat den dag, du rent faktisk <b>sælger</b> dine aktier med gevinst, eller når du modtager udbytte. Hvis dine aktier stiger i værdi uden at du sælger, betaler du ingenting endnu.</p>
                 <ul>
-                    <li>Gevinster <b>op til 79.400 kr. (2026)</b> beskattes med <b>27% (2026)</b>.</li>
+                    <li>Gevinster <b>op til 79.400 kr. (2026)</b> beskattes med <b>27% (2026)</b> (for gifte par er grænsen 158.800 kr. (2026)).</li>
                     <li>Gevinster <b>over 79.400 kr. (2026)</b> beskattes med <b>42% (2026)</b>.</li>
-                    <li><i>For gifte par er det dobbelte knækgrænse: 158.800 kr. (2026).</i></li>
                 </ul>
 
                 <h4>2. Lagerprincippet (Aktiesparekonto & Pension)</h4>
-                <p>Her afregnes skatten hvert eneste år baseret på værdien af dit depot den 31. december, <b>uanset om du har solgt eller ej</b>. Stiger dine aktier, skal du betale skat af den "fiktive" gevinst i starten af det nye år.</p>
+                <p>Her afregnes skatten hvert eneste år baseret på værdien av dit depot den 31. december, <b>uanset om du har solgt eller ej</b>. Stiger dine aktier, skal du betale skat af den "fiktive" gevinst i starten af det nye år.</p>
                 <ul>
                     <li><b>Aktiesparekonto (ASK):</b> Beskattes med en flad lagerskat på kun <b>17% (2026)</b>. Indskudsloftet er 174.200 kr. (2026).</li>
                     <li><b>Pensionsdepot (PAL-skat):</b> Beskattes med en flad lagerskat på kun <b>15,3% (2026)</b>. Gælder f.eks. ratepension og aldersopsparing.</li>
@@ -396,7 +395,7 @@ function calculate() {
 
         let forklaringText = strategy === 'shorten' 
             ? "Da du beholder din oprindelige månedlige ydelse, sparer du i alt <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i renteudgifter og skærer <span class='text-success'><b>" + tidsText + "</b></span> af lånets løbetid!"
-            : "Da du fastholder din slutdato, vil din månedlige udgift falde løbende efter indbetalingen. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samleder renter, og din månedlige udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b>!";
+            : "Da du fastholder din slutdato, vil din månedlige udgift falde løbende efter indbetalingen. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samlede renter, og din månedlige udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b>!";
         
         document.getElementById("result").innerHTML += `<div class="savings-box"><h3 style="margin:0 0 5px 0; color:var(--success); font-size:1.1rem;">🎉 Gevinst:</h3><p style="margin:0; font-size:0.95rem;">${forklaringText}</p></div>`;
     }
@@ -439,7 +438,7 @@ function calcDeduction() {
     document.getElementById("deduct-result").style.display = "block";
 }
 
-// ================= SIDE 3: AKTIESKATSLOGIK =================
+// ================= SIDE 3: AKTIEBESKATNING =================
 function calcStockTax() {
     let profit = parseFloat(document.getElementById("stock-profit").value) || 0;
     let accountType = document.getElementById("account-type").value;
