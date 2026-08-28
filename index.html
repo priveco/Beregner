@@ -33,7 +33,7 @@ nav button.active { background: var(--primary); color: white; }
 h1, .subtitle { text-align: center; margin-bottom: 5px; }
 .subtitle { color: #666; margin-bottom: 30px; }
 
-/* Side-styring (Skjul ikke-aktive sider) */
+/* Side-styring */
 .page-section { display: none; }
 .page-section.active { display: block; }
 
@@ -44,7 +44,7 @@ h1, .subtitle { text-align: center; margin-bottom: 5px; }
 .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; }
 .card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 15px 0; border-bottom: 2px solid var(--bg); padding-bottom: 8px; }
 label { font-weight: 600; display: block; margin-top: 12px; font-size: 0.85rem; }
-input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; margin-top: 4px; font-size: 0.95rem; }
+input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; margin-top: 4px; font-size: 0.95rem; width: 100%; }
 button { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 20px; font-size: 1rem; }
 button:hover { background: var(--primary-hover); }
 
@@ -85,7 +85,11 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
     <!-- ================= SIDE 1: LÅNEBEREGNER ================= -->
     <section id="loan-page" class="page-section active">
         <h1>Låne- & Amortiseringsberegner</h1>
-        <p class="subtitle">Beregn dine månedlige ydelser og vælg bankstrategi for dine ekstraordinære afdrag.</p>
+        <p class="info-text" style="max-width: 800px; margin: 0 auto 30px auto; text-align: left; background: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+            Hvis du skal til at optage lån, kan du herunder få et bud på, hvordan det kommer til at se ud. Hvis du har et eksisterende lån, kan du også få en idé om, hvor meget du kan spare, hvis du vælger at lave en ekstraindbetaling nu og her. Eller en eventuel besparelse ved at betale en smule ekstra hver måned.
+            <br><br>
+            <small style="color:#666;"><i>Bemærk, at alt på siden er estimater. Kontakt din egen bank eller realkreditinstitut for at få at vide præcis hvordan lånet vil blive hos dem.</i></small>
+        </p>
 
         <div class="main-layout">
             <div>
@@ -186,7 +190,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
                     <li><b>Under 50.000 kr. (100.000 kr. for par):</b> Skatteværdien er ca. <b>33,1% (2026)</b>. For hver 1.000 kr. du betaler i rente, sparer du ca. 331 kr. i skat.</li>
                     <li><b>Over grænsen:</b> Renteudgifter herover har en lavere skatteværdi på ca. <b>25,1% (2026)</b>, fordi de udelukkende modregnes i din lokale kommuneskat.</li>
                 </ul>
-                <p><i>Bemærk: Kirkeskat indgår ikke i beregningen af dit rentefradrag. Bankerne indberetter automatisk dine renter til SKAT, men husk altid at tjekke din forskudsopgørelse.</i></p>
+                <p><i>Bemærk: Ovenstående vil ikke være dit præcise rentefradrag. Værdien af dit rentefradrag afhænger direkte af din lokale kommuneskat. Jo højere din lokale skatteprocent er, desto mere sparer du i skat på dine renter.</i></p>
             </div>
         </div>
     </section>
@@ -224,7 +228,6 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
 
             <div class="card info-text">
                 <div class="card-title">De forskellige beskatningsprincipper</div>
-                
                 <p>Det er helt afgørende at kende forskel på de to måder, som dine aktieinvesteringer kan blive beskattet på i Danmark:</p>
                 
                 <h4>1. Realisationsprincippet (Almindeligt depot)</h4>
@@ -236,7 +239,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
                 </ul>
 
                 <h4>2. Lagerprincippet (Aktiesparekonto & Pension)</h4>
-                <p>Her afregnes skatten hvert eneste år baseret på værdien af dit depot den 31. december, **uanset om du har solgt eller ej**. Stiger dine aktier, skal du betale skat af den "fiktive" gevinst i starten af det nye år.</p>
+                <p>Her afregnes skatten hvert eneste år baseret på værdien af dit depot den 31. december, <b>uanset om du har solgt eller ej</b>. Stiger dine aktier, skal du betale skat af den "fiktive" gevinst i starten af det nye år.</p>
                 <ul>
                     <li><b>Aktiesparekonto (ASK):</b> Beskattes med en flad lagerskat på kun <b>17% (2026)</b>. Indskudsloftet er 174.200 kr. (2026).</li>
                     <li><b>Pensionsdepot (PAL-skat):</b> Beskattes med en flad lagerskat på kun <b>15,3% (2026)</b>. Gælder f.eks. ratepension og aldersopsparing.</li>
@@ -274,8 +277,6 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
     let currentPmt = basePmt;
     let cData = [loan];
     let dLabels = ["Start"];
-
-    // Årlig akkumulering til rentefradragsknækket (50.000 kr pr. år)
     let currentYearInt = 0;
 
     if (extraType === 'onetime' && extra > 0) {
@@ -290,7 +291,6 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
         if (bal <= 0) break;
         mCount++;
         
-        // Nulstil rentepulje hvert nyt år (hver 12. måned eller hver 4. kvartal)
         if ((m - 1) % freq === 0) {
             currentYearInt = 0;
         }
@@ -315,7 +315,6 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
         
         totInt += intr;
 
-        // Beregn rentefradrag ud fra landstal (33,1% op til 50k om året, 25,1% derover)
         let yDed = 0;
         if (currentYearInt + intr <= 50000) {
             yDed = intr * 0.331;
@@ -397,7 +396,7 @@ function calculate() {
 
         let forklaringText = strategy === 'shorten' 
             ? "Da du beholder din oprindelige månedlige ydelse, sparer du i alt <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i renteudgifter og skærer <span class='text-success'><b>" + tidsText + "</b></span> af lånets løbetid!"
-            : "Da du fastholder din slutdato, vil din månedlige udgift falde løbende efter indbetalingen. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samlede renter, og din månedlige udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b>!";
+            : "Da du fastholder din slutdato, vil din månedlige udgift falde løbende efter indbetalingen. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samleder renter, og din månedlige udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b>!";
         
         document.getElementById("result").innerHTML += `<div class="savings-box"><h3 style="margin:0 0 5px 0; color:var(--success); font-size:1.1rem;">🎉 Gevinst:</h3><p style="margin:0; font-size:0.95rem;">${forklaringText}</p></div>`;
     }
@@ -431,9 +430,9 @@ function calcDeduction() {
     let taxValue = 0;
     
     if (interest <= limit) {
-        taxValue = interest * 0.331; // Landsgennemsnit (2026) under grænsen
+        taxValue = interest * 0.331; 
     } else {
-        taxValue = (limit * 0.331) + ((interest - limit) * 0.251); // Landsgennemsnit (2026) over grænsen
+        taxValue = (limit * 0.331) + ((interest - limit) * 0.251); 
     }
     
     document.getElementById("deduct-value").innerText = formatDKK(taxValue);
@@ -447,16 +446,16 @@ function calcStockTax() {
     let tax = 0;
     
     if (accountType === 'regular') {
-        const limit = 79400; // Officiel progressionsgrænse for skatteåret (2026)
+        const limit = 79400; 
         if (profit <= limit) {
-            tax = profit * 0.27; // 27% (2026)
+            tax = profit * 0.27; 
         } else {
-            tax = (limit * 0.27) + ((profit - limit) * 0.42); // 42% (2026)
+            tax = (limit * 0.27) + ((profit - limit) * 0.42); 
         }
     } else if (accountType === 'ask') {
-        tax = profit * 0.17; // Aktiesparekonto lagerskat på 17% (2026)
+        tax = profit * 0.17; 
     } else if (accountType === 'pension') {
-        tax = profit * 0.153; // PAL-skat på pension på 15,3% (2026)
+        tax = profit * 0.153; 
     }
     
     let netProfit = profit - tax;
@@ -466,7 +465,6 @@ function calcStockTax() {
     document.getElementById("stock-result").style.display = "block";
 }
 
-// Kør første beregning ved opstart
 calculate();
 calcDeduction();
 calcStockTax();
