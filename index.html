@@ -62,6 +62,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
 .text-success { color: var(--success); font-weight: 600; }
 
 .info-text { line-height: 1.6; color: #444; font-size: 0.95rem; }
+.info-text h3, .info-text h4 { color: var(--primary); margin-top: 20px; margin-bottom: 5px; }
 .info-text ul { padding-left: 20px; }
 .info-text li { margin-bottom: 8px; }
 </style>
@@ -139,7 +140,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
                                 <th>Ordinært Afdrag</th>
                                 <th>Ekstraordinært Afdrag</th>
                                 <th>Renter</th>
-                                <th>Rentefradrag (Landsgennemsnit)</th>
+                                <th>Rentefradrag (33,1% / 25,1%)</th>
                                 <th>Restgæld ultimo</th>
                             </tr>
                         </thead>
@@ -178,27 +179,34 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
 
             <div class="card info-text">
                 <div class="card-title">Hvordan fungerer rentefradraget?</div>
-                <p>Når du betaler renter på f.eks. et realkreditlån, banklån eller forbrugslån, får du automatisk et fradrag i skat. Det betyder, at staten og kommunen betaler en del af dine renteudgifter for dig ved at sænke din indkomstskat.</p>
+                <p>Når du betaler renter på f.eks. et realkreditlån, banklån eller forbrugslån, får du automatisk et fradrag i skat. Det betyder, at staten betaler en del af dine renteudgifter for dig ved at sænke din indkomstskat.</p>
                 
-                <h4 style="color:var(--primary); margin-bottom:5px;">Værdien af fradraget (Landsgennemsnit):</h4>
+                <h4>Værdien af fradraget:</h4>
                 <ul>
-                    <li><b>Under 50.000 kr. (100.000 kr. for par):</b> Skatteværdien er ca. <b>33,1%</b>. For hver 1.000 kr. du betaler i rente, sparer du ca. 331 kr. i skat.</li>
-                    <li><b>Over grænsen:</b> Renteudgifter herover har en lavere skatteværdi på ca. <b>25,1%</b>, fordi det statslige tillæg på 8% bortfalder for beløb over knækgrænsen.</li>
+                    <li><b>Under 50.000 kr. (100.000 kr. for par):</b> Skatteværdien er ca. <b>33,1% (2026)</b>. For hver 1.000 kr. du betaler i rente, sparer du ca. 331 kr. i skat.</li>
+                    <li><b>Over grænsen:</b> Renteudgifter herover har en lavere skatteværdi på ca. <b>25,1% (2026)</b>, fordi de udelukkende modregnes i din lokale kommuneskat.</li>
                 </ul>
-                <p><i>Bemærk: Værdien af dit rentefradrag afhænger direkte af din lokale kommuneskat. Jo højere din lokale skatteprocent er, desto mere sparer du i skat på dine renter.</i></p>
+                <p><i>Bemærk: Kirkeskat indgår ikke i beregningen af dit rentefradrag. Bankerne indberetter automatisk dine renter til SKAT, men husk altid at tjekke din forskudsopgørelse.</i></p>
             </div>
         </div>
     </section>
 
-    <!-- ================= SIDE 3: AKTIER & BESKATNING ================= -->
+    <!-- ================= SIDE 3: AKTIEBESKATNING ================= -->
     <section id="stock-page" class="page-section">
         <h1>Beskatning af Aktier</h1>
-        <p class="subtitle">Lær reglerne for aktieindkomst og beregn din skat ved realisering.</p>
+        <p class="subtitle">Lær reglerne for aktieindkomst og beregn din skat ved investering.</p>
 
         <div class="main-layout">
             <div class="card">
                 <div class="card-title">Aktieskat-Beregner</div>
-                <label for="stock-profit">Årlig aktiegevinst / udbytte (kr.)</label>
+                <label for="account-type">Kontotype / Depot</label>
+                <select id="account-type" onchange="calcStockTax()">
+                    <option value="regular">Almindeligt depot (Frie midler)</option>
+                    <option value="ask">Aktiesparekonto (ASK)</option>
+                    <option value="pension">Pensionsdepot (PAL-skat)</option>
+                </select>
+
+                <label for="stock-profit">Årlig aktiegevinst / kursgevinst / udbytte (kr.)</label>
                 <input id="stock-profit" type="number" value="80000">
                 <button onclick="calcStockTax()">Beregn skat</button>
                 
@@ -215,18 +223,24 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
             </div>
 
             <div class="card info-text">
-                <div class="card-title">De danske regler for aktieskat</div>
-                <p>I Danmark bliver gevinster på aktier (både kursgevinster og udbytter) beskattet efter progressionsprincippet. Det betyder, at skatteprocenten stiger, jo mere du tjener.</p>
+                <div class="card-title">De forskellige beskatningsprincipper</div>
                 
-                <h4 style="color:var(--primary); margin-bottom:5px;">Progressive Knækgrænser:</h4>
+                <p>Det er helt afgørende at kende forskel på de to måder, som dine aktieinvesteringer kan blive beskattet på i Danmark:</p>
+                
+                <h4>1. Realisationsprincippet (Almindeligt depot)</h4>
+                <p>Du betaler først skat den dag, du rent faktisk <b>sælger</b> dine aktier med gevinst, eller når du modtager udbytte. Hvis dine aktier stiger i værdi uden at du sælger, betaler du ingenting endnu.</p>
                 <ul>
-                    <li>Gevinster <b>op til 61.100 kr.</b> beskattes med <b>27%</b>.</li>
-                    <li>Gevinster <b>over 61.100 kr.</b> beskattes med <b>42%</b>.</li>
+                    <li>Gevinster <b>op til 79.400 kr. (2026)</b> beskattes med <b>27% (2026)</b>.</li>
+                    <li>Gevinster <b>over 79.400 kr. (2026)</b> beskattes med <b>42% (2026)</b>.</li>
+                    <li><i>For gifte par er det dobbelte knækgrænse: 158.800 kr. (2026).</i></li>
                 </ul>
-                <p>Hvis du er gift, overføres uudnyttet bundfradrag automatisk til din ægtefælle, hvilket betyder at I sammen kan tjene op til 122.200 kr. til den lave sats på 27%.</p>
-                
-                <h4 style="color:var(--primary); margin-bottom:5px;">💡 Eksempel (80.000 kr. i gevinst):</h4>
-                <p>De første 61.100 kr. koster 27% i skat (16.497 kr.).<br>De resterende 18.900 kr. koster 42% i skat (7.938 kr.).<br><b>Samlet skat: 24.435 kr.</b></p>
+
+                <h4>2. Lagerprincippet (Aktiesparekonto & Pension)</h4>
+                <p>Her afregnes skatten hvert eneste år baseret på værdien af dit depot den 31. december, **uanset om du har solgt eller ej**. Stiger dine aktier, skal du betale skat af den "fiktive" gevinst i starten af det nye år.</p>
+                <ul>
+                    <li><b>Aktiesparekonto (ASK):</b> Beskattes med en flad lagerskat på kun <b>17% (2026)</b>. Indskudsloftet er 174.200 kr. (2026).</li>
+                    <li><b>Pensionsdepot (PAL-skat):</b> Beskattes med en flad lagerskat på kun <b>15,3% (2026)</b>. Gælder f.eks. ratepension og aldersopsparing.</li>
+                </ul>
             </div>
         </div>
     </section>
@@ -238,12 +252,11 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
 function switchPage(pageId, btnId) {
     document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    
     document.getElementById(pageId).classList.add('active');
     document.getElementById(btnId).classList.add('active');
 }
 
-// ================= HJÆLPEFUNKTIONER =================
+// ================= SIDE 1: LÅNELOGIK =================
 let myChart = null;
 function formatDKK(v) { return Math.round(v).toLocaleString('da-DK') + ' kr.'; }
 
@@ -255,7 +268,6 @@ function getMonthYearLabel(index, freq) {
     return months[d.getMonth()] + ". " + d.getFullYear();
 }
 
-// Dynamisk akkumuleret renteberegner til amortiseringsplanen med knækgrænser baseret på landsgennemsnit (33,1% og 25,1%)
 function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
     let bal = loan, totInt = 0, totDed = 0, mCount = 0, tData = [];
     let basePmt = rate === 0 ? loan / totalMonths : loan * rate / (1 - Math.pow(1 + rate, -totalMonths));
@@ -263,9 +275,8 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
     let cData = [loan];
     let dLabels = ["Start"];
 
-    // Variabler til at holde styr på akkumuleret årlig rente pr. simuleret kalenderår
-    let currentYear = new Date().getFullYear();
-    let yearlyInterestAccumulated = 0;
+    // Årlig akkumulering til rentefradragsknækket (50.000 kr pr. år)
+    let currentYearInt = 0;
 
     if (extraType === 'onetime' && extra > 0) {
         let firstCut = Math.min(extra, bal);
@@ -279,6 +290,11 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
         if (bal <= 0) break;
         mCount++;
         
+        // Nulstil rentepulje hvert nyt år (hver 12. måned eller hver 4. kvartal)
+        if ((m - 1) % freq === 0) {
+            currentYearInt = 0;
+        }
+
         let intr = bal * rate;
         let prin = currentPmt - intr;
         if (prin > bal) prin = bal;
@@ -298,29 +314,19 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
         }
         
         totInt += intr;
-        
-        // Beregn rentefradrag med knækgrænse på årsbasis (50.000 kr)
-        let simDate = new Date();
-        if (freq === 12) { simDate.setMonth(simDate.getMonth() + m); } 
-        else { simDate.setMonth(simDate.getMonth() + (m * 3)); }
-        
-        if (simDate.getFullYear() !== currentYear) {
-            currentYear = simDate.getFullYear();
-            yearlyInterestAccumulated = 0;
-        }
-        
+
+        // Beregn rentefradrag ud fra landstal (33,1% op til 50k om året, 25,1% derover)
         let yDed = 0;
-        // Tjekker om den akkumulerede rente for året er under eller over 50.000 kr. knækgrænsen
-        if (yearlyInterestAccumulated + intr <= 50000) {
+        if (currentYearInt + intr <= 50000) {
             yDed = intr * 0.331;
-        } else if (yearlyInterestAccumulated >= 50000) {
+        } else if (currentYearInt >= 50000) {
             yDed = intr * 0.251;
         } else {
-            let underLimit = 50000 - yearlyInterestAccumulated;
+            let underLimit = 50000 - currentYearInt;
             let overLimit = intr - underLimit;
             yDed = (underLimit * 0.331) + (overLimit * 0.251);
         }
-        yearlyInterestAccumulated += intr;
+        currentYearInt += intr;
         totDed += yDed;
 
         let dateText = getMonthYearLabel(m, freq);
@@ -425,9 +431,9 @@ function calcDeduction() {
     let taxValue = 0;
     
     if (interest <= limit) {
-        taxValue = interest * 0.331; // Landsgennemsnit under grænsen
+        taxValue = interest * 0.331; // Landsgennemsnit (2026) under grænsen
     } else {
-        taxValue = (limit * 0.331) + ((interest - limit) * 0.251); // Landsgennemsnit over grænsen
+        taxValue = (limit * 0.331) + ((interest - limit) * 0.251); // Landsgennemsnit (2026) over grænsen
     }
     
     document.getElementById("deduct-value").innerText = formatDKK(taxValue);
@@ -437,13 +443,20 @@ function calcDeduction() {
 // ================= SIDE 3: AKTIESKATSLOGIK =================
 function calcStockTax() {
     let profit = parseFloat(document.getElementById("stock-profit").value) || 0;
-    const limit = 61100; 
+    let accountType = document.getElementById("account-type").value;
     let tax = 0;
     
-    if (profit <= limit) {
-        tax = profit * 0.27;
-    } else {
-        tax = (limit * 0.27) + ((profit - limit) * 0.42);
+    if (accountType === 'regular') {
+        const limit = 79400; // Officiel progressionsgrænse for skatteåret (2026)
+        if (profit <= limit) {
+            tax = profit * 0.27; // 27% (2026)
+        } else {
+            tax = (limit * 0.27) + ((profit - limit) * 0.42); // 42% (2026)
+        }
+    } else if (accountType === 'ask') {
+        tax = profit * 0.17; // Aktiesparekonto lagerskat på 17% (2026)
+    } else if (accountType === 'pension') {
+        tax = profit * 0.153; // PAL-skat på pension på 15,3% (2026)
     }
     
     let netProfit = profit - tax;
@@ -453,6 +466,7 @@ function calcStockTax() {
     document.getElementById("stock-result").style.display = "block";
 }
 
+// Kør første beregning ved opstart
 calculate();
 calcDeduction();
 calcStockTax();
