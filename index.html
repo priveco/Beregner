@@ -81,7 +81,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
 
 <div class="container">
 
-    <!-- ================= SIDER 1: LÅNEBEREGNER ================= -->
+    <!-- ================= SIDE 1: LÅNEBEREGNER ================= -->
     <section id="loan-page" class="page-section active">
         <h1>Låne- & Amortiseringsberegner</h1>
         <p class="subtitle">Beregn dine månedlige ydelser og vælg bankstrategi for dine ekstraordinære afdrag.</p>
@@ -139,7 +139,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
                                 <th>Ordinært Afdrag</th>
                                 <th>Ekstraordinært Afdrag</th>
                                 <th>Renter</th>
-                                <th>Rentefradrag (25%)</th>
+                                <th>Rentefradrag (Landsgennemsnit)</th>
                                 <th>Restgæld ultimo</th>
                             </tr>
                         </thead>
@@ -150,7 +150,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
         </div>
     </section>
 
-    <!-- ================= SIDER 2: RENTEFRADRAG ================= -->
+    <!-- ================= SIDE 2: RENTEFRADRAG ================= -->
     <section id="deduction-page" class="page-section">
         <h1>Forstå Rentefradrag</h1>
         <p class="subtitle">Få overblik over reglerne, og beregn din reelle skattebesparelse.</p>
@@ -178,19 +178,19 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
 
             <div class="card info-text">
                 <div class="card-title">Hvordan fungerer rentefradraget?</div>
-                <p>Når du betaler renter på f.eks. et realkreditlån, banklån eller forbrugslån, får du automatisk et fradrag i skat. Det betyder, at staten betaler en del af dine renteudgifter for dig ved at sænke din indkomstskat.</p>
+                <p>Når du betaler renter på f.eks. et realkreditlån, banklån eller forbrugslån, får du automatisk et fradrag i skat. Det betyder, at staten og kommunen betaler en del af dine renteudgifter for dig ved at sænke din indkomstskat.</p>
                 
-                <h4 style="color:var(--primary); margin-bottom:5px;">Værdien af fradraget:</h4>
+                <h4 style="color:var(--primary); margin-bottom:5px;">Værdien af fradraget (Landsgennemsnit):</h4>
                 <ul>
-                    <li><b>Under 50.000 kr. (100.000 kr. for par):</b> Skatteværdien er ca. <b>33,6%</b>. For hver 1.000 kr. du betaler i rente, sparer du ca. 336 kr. i skat.</li>
-                    <li><b>Over grænsen (Modregningsbeløb):</b> Renteudgifter herover har en lavere skatteværdi på ca. <b>21,6%</b> på grund af det gradvise fald i det personlige fradrag.</li>
+                    <li><b>Under 50.000 kr. (100.000 kr. for par):</b> Skatteværdien er ca. <b>33,1%</b>. For hver 1.000 kr. du betaler i rente, sparer du ca. 331 kr. i skat.</li>
+                    <li><b>Over grænsen:</b> Renteudgifter herover har en lavere skatteværdi på ca. <b>25,1%</b>, fordi det statslige tillæg på 8% bortfalder for beløb over knækgrænsen.</li>
                 </ul>
-                <p><i>Bemærk: Bankerne indberetter automatisk dine renter til SKAT, men husk altid at tjekke din forskudsopgørelse, så du får fradraget løbende hver måned i stedet for først til årsopgørelsen!</i></p>
+                <p><i>Bemærk: Værdien af dit rentefradrag afhænger direkte af din lokale kommuneskat. Jo højere din lokale skatteprocent er, desto mere sparer du i skat på dine renter.</i></p>
             </div>
         </div>
     </section>
 
-    <!-- ================= SIDER 3: AKTAKTIER & BESKATNING ================= -->
+    <!-- ================= SIDE 3: AKTIER & BESKATNING ================= -->
     <section id="stock-page" class="page-section">
         <h1>Beskatning af Aktier</h1>
         <p class="subtitle">Lær reglerne for aktieindkomst og beregn din skat ved realisering.</p>
@@ -216,7 +216,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
 
             <div class="card info-text">
                 <div class="card-title">De danske regler for aktieskat</div>
-                <p>I Danmark bliver gevinster på aktier (både kursgevinster og udbytter) beskattet efter **progressionsprincippet**. Det betyder, at skatteprocenten stiger, jo mere du tjener.</p>
+                <p>I Danmark bliver gevinster på aktier (både kursgevinster og udbytter) beskattet efter progressionsprincippet. Det betyder, at skatteprocenten stiger, jo mere du tjener.</p>
                 
                 <h4 style="color:var(--primary); margin-bottom:5px;">Progressive Knækgrænser:</h4>
                 <ul>
@@ -243,7 +243,7 @@ function switchPage(pageId, btnId) {
     document.getElementById(btnId).classList.add('active');
 }
 
-// ================= SIDE 1: LÅNELOGIK =================
+// ================= HJÆLPEFUNKTIONER =================
 let myChart = null;
 function formatDKK(v) { return Math.round(v).toLocaleString('da-DK') + ' kr.'; }
 
@@ -255,12 +255,17 @@ function getMonthYearLabel(index, freq) {
     return months[d.getMonth()] + ". " + d.getFullYear();
 }
 
+// Dynamisk akkumuleret renteberegner til amortiseringsplanen med knækgrænser baseret på landsgennemsnit (33,1% og 25,1%)
 function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
     let bal = loan, totInt = 0, totDed = 0, mCount = 0, tData = [];
     let basePmt = rate === 0 ? loan / totalMonths : loan * rate / (1 - Math.pow(1 + rate, -totalMonths));
     let currentPmt = basePmt;
     let cData = [loan];
     let dLabels = ["Start"];
+
+    // Variabler til at holde styr på akkumuleret årlig rente pr. simuleret kalenderår
+    let currentYear = new Date().getFullYear();
+    let yearlyInterestAccumulated = 0;
 
     if (extraType === 'onetime' && extra > 0) {
         let firstCut = Math.min(extra, bal);
@@ -293,7 +298,29 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
         }
         
         totInt += intr;
-        let yDed = intr * 0.25;
+        
+        // Beregn rentefradrag med knækgrænse på årsbasis (50.000 kr)
+        let simDate = new Date();
+        if (freq === 12) { simDate.setMonth(simDate.getMonth() + m); } 
+        else { simDate.setMonth(simDate.getMonth() + (m * 3)); }
+        
+        if (simDate.getFullYear() !== currentYear) {
+            currentYear = simDate.getFullYear();
+            yearlyInterestAccumulated = 0;
+        }
+        
+        let yDed = 0;
+        // Tjekker om den akkumulerede rente for året er under eller over 50.000 kr. knækgrænsen
+        if (yearlyInterestAccumulated + intr <= 50000) {
+            yDed = intr * 0.331;
+        } else if (yearlyInterestAccumulated >= 50000) {
+            yDed = intr * 0.251;
+        } else {
+            let underLimit = 50000 - yearlyInterestAccumulated;
+            let overLimit = intr - underLimit;
+            yDed = (underLimit * 0.331) + (overLimit * 0.251);
+        }
+        yearlyInterestAccumulated += intr;
         totDed += yDed;
 
         let dateText = getMonthYearLabel(m, freq);
@@ -393,13 +420,14 @@ function calculate() {
 function calcDeduction() {
     let interest = parseFloat(document.getElementById("deduct-interest").value) || 0;
     let status = document.getElementById("civil-status").value;
+    
     let limit = status === 'single' ? 50000 : 100000;
     let taxValue = 0;
     
     if (interest <= limit) {
-        taxValue = interest * 0.336;
+        taxValue = interest * 0.331; // Landsgennemsnit under grænsen
     } else {
-        taxValue = (limit * 0.336) + ((interest - limit) * 0.216);
+        taxValue = (limit * 0.331) + ((interest - limit) * 0.251); // Landsgennemsnit over grænsen
     }
     
     document.getElementById("deduct-value").innerText = formatDKK(taxValue);
@@ -409,7 +437,7 @@ function calcDeduction() {
 // ================= SIDE 3: AKTIESKATSLOGIK =================
 function calcStockTax() {
     let profit = parseFloat(document.getElementById("stock-profit").value) || 0;
-    const limit = 61100;
+    const limit = 61100; 
     let tax = 0;
     
     if (profit <= limit) {
