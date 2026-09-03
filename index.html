@@ -11,7 +11,7 @@
 </script>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SimpelØkonomi - Lån, Skat & Aktier</title>
 
 <!-- Godkendt og sikker CDN-forbindelse til grafen -->
@@ -27,7 +27,7 @@
     --text: #333333; 
     --border: #e0e0e0; 
 }
-body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 0; margin: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 0; margin: 0; -webkit-text-size-adjust: 100%; }
 
 /* Navigation og Header */
 header { background: #ffffff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
@@ -43,36 +43,42 @@ nav button { background: none; color: #555; border: none; padding: 10px 15px; bo
 nav button:hover { background: #f0f2f5; color: var(--primary); }
 nav button.active { background: var(--primary); color: white; }
 
-.container { max-width: 1200px; margin: 20px auto; padding: 0 15px; box-sizing: border-box; }
-h1 { font-size: 1.8rem; text-align: center; margin-bottom: 5px; padding: 0 10px; }
+.container { max-width: 1200px; margin: 20px auto; padding: 0 15px; box-sizing: border-box; width: 100%; overflow: hidden; }
+h1 { font-size: 1.6rem; text-align: center; margin-bottom: 5px; padding: 0 10px; }
 @media (min-width: 768px) { h1 { font-size: 2.2rem; } }
-.subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 1rem; padding: 0 10px; }
+.subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 0.95rem; padding: 0 10px; }
 
 /* Side-styring */
 .page-section { display: none; }
 .page-section.active { display: block; }
 
 /* Layouts og Komponenter */
-.main-layout { display: grid; grid-template-columns: 1fr; gap: 25px; align-items: start; }
-@media (min-width: 768px) { .main-layout { grid-template-columns: 320px 1fr; } }
+.main-layout { display: grid; grid-template-columns: 1fr; gap: 20px; align-items: start; width: 100%; box-sizing: border-box; }
+@media (min-width: 768px) { .main-layout { grid-template-columns: 320px 1fr; gap: 25px; } }
 
-.card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; box-sizing: border-box; }
+.card { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 15px; box-sizing: border-box; width: 100%; }
+@media (min-width: 768px) { .card { padding: 20px; margin-bottom: 20px; } }
 .card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 15px 0; border-bottom: 2px solid var(--bg); padding-bottom: 8px; }
 label { font-weight: 600; display: block; margin-top: 12px; font-size: 0.85rem; }
-input, select { width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; margin-top: 4px; font-size: 1rem; -webkit-appearance: none; }
+input, select { width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; margin-top: 4px; font-size: 1rem; -webkit-appearance: none; background-color: #fff; }
 button { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 20px; font-size: 1rem; }
 button:hover { background: var(--primary-hover); }
 
 /* Resultat-kort mobiloptimering */
-.result-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 5px; }
+.result-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 5px; width: 100%; box-sizing: border-box; }
 @media (min-width: 480px) { .result-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 992px) { .result-grid { grid-template-columns: repeat(4, 1fr); } }
 
 .result-block { background: var(--bg); padding: 15px; border-radius: 8px; border-top: 4px solid var(--primary); box-sizing: border-box; }
 .result-block.success { border-top-color: var(--success); }
 .result-label { font-size: 0.8rem; color: #666; text-transform: uppercase; font-weight: bold; }
-.result-value { font-size: 1.25rem; font-weight: bold; margin-top: 5px; word-break: break-word; }
+.result-value { font-size: 1.2rem; font-weight: bold; margin-top: 5px; word-break: break-word; }
 .savings-box { background: #e8f5e9; border: 2px dashed var(--success); padding: 15px; border-radius: 8px; margin-top: 15px; }
+
+/* Canvas Box responsive-fix */
+#chart-box { width: 100%; box-sizing: border-box; }
+.chart-container { position: relative; height: 260px; width: 100%; }
+@media (min-width: 768px) { .chart-container { height: 320px; } }
 
 /* Tabel mobiloptimering (Scrollbar på mobilen) */
 .table-container { overflow-x: auto; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); margin-top: 20px; max-width: 100%; -webkit-overflow-scrolling: touch; }
@@ -154,7 +160,9 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; font-weight: bold; }
                 </div>
                 <div id="chart-box" class="card" style="display:none;">
                     <div class="card-title">Afvikling af restgæld over tid</div>
-                    <canvas id="loanChart" style="max-height: 320px; width: 100%;"></canvas>
+                    <div class="chart-container">
+                        <canvas id="loanChart"></canvas>
+                    </div>
                 </div>
                 <div id="schedule-box" class="table-container" style="display:none;">
                     <table>
@@ -209,7 +217,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; font-weight: bold; }
                     <li><b>Under 50.000 kr. (100.000 kr. for par):</b> Skatteværdien er ca. <b>33,1% (2026)</b>. For hver 1.000 kr. du betaler i rente, sparer du ca. 331 kr. i skat.</li>
                     <li><b>Over grænsen:</b> Renteudgifter herover har en lavere skatteværdi på ca. <b>25,1% (2026)</b>, fordi de udelukkende modregnes i din lokale kommuneskat.</li>
                 </ul>
-                <p><i>Bemærk: Ovenstående vil ikke være dit præcise rentefradrag. Værdien af dit rentefradrag afhænder direkte af din lokale kommuneskat. Jo højere din lokale skatteprocent er, desto mere sparer du i skat på dine renter.</i></p>
+                <p><i>Bemærk: Ovenstående vil ikke være dit præcise rentefradrag. Værdien af dit rentefradrag afhænger direkte af din lokale kommuneskat. Jo højere din lokale skatteprocent er, desto mere sparer du i skat på dine renter.</i></p>
             </div>
         </div>
     </section>
