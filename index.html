@@ -133,7 +133,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
                     <div id="result">Indtast data og tryk beregn for at se resultatet.</div>
                 </div>
                 <div id="chart-box" class="card" style="display:none;">
-                    <div class="card-title">Afvikling af restgæld over tid</div>
+                    <div class="card-title">Afvikling af restgæld over zeit</div>
                     <canvas id="loanChart" style="max-height: 320px; width: 100%;"></canvas>
                 </div>
                 <div id="schedule-box" class="table-container" style="display:none;">
@@ -238,7 +238,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
                 </ul>
 
                 <h4>2. Lagerprincippet (Aktiesparekonto & Pension)</h4>
-                <p>Her afregnes skatten hvert eneste år baseret på værdien av dit depot den 31. december, <b>uanset om du har solgt eller ej</b>. Stiger dine aktier, skal du betale skat af den "fiktive" gevinst i starten af det nye år.</p>
+                <p>Her afregnes skatten hvert eneste år baseret på værdien av dit depot den 31. december, <b>uanset om du har solgt eller ej</b>. Stiger dine aktier, skal du betale skat av den "fiktive" gevinst i starten af det nye år.</p>
                 <ul>
                     <li><b>Aktiesparekonto (ASK):</b> Beskattes med en flad lagerskat på kun <b>17% (2026)</b>. Indskudsloftet er 174.200 kr. (2026).</li>
                     <li><b>Pensionsdepot (PAL-skat):</b> Beskattes med en flad lagerskat på kun <b>15,3% (2026)</b>. Gælder f.eks. ratepension og aldersopsparing.</li>
@@ -270,10 +270,13 @@ function getMonthYearLabel(index, freq) {
     return months[d.getMonth()] + ". " + d.getFullYear();
 }
 
-function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
-    let bal = loan, totInt = 0, totDed = 0, mCount = 0, tData = [];
-    let basePmt = rate === 0 ? loan / totalMonths : loan * rate / (1 - Math.pow(1 + rate, -totalMonths));
+function runSim(loan, annualRate, totalTerms, extra, extraType, strategy, freq) {
+    let bal = loan, totInt = 0, totDed = 0, termCount = 0, tData = [];
+    
+    let ratePerTerm = annualRate / freq;
+    let basePmt = ratePerTerm === 0 ? loan / totalTerms : loan * ratePerTerm / (1 - Math.pow(1 + ratePerTerm, -totalTerms));
     let currentPmt = basePmt;
+    
     let cData = [loan];
     let dLabels = ["Start"];
     let currentYearInt = 0;
@@ -282,33 +285,37 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
         let firstCut = Math.min(extra, bal);
         bal -= firstCut;
         if (strategy === 'lower_payment' && bal > 0) {
-            currentPmt = rate === 0 ? bal / totalMonths : bal * rate / (1 - Math.pow(1 + rate, -totalMonths));
+            currentPmt = ratePerTerm === 0 ? bal / totalTerms : bal * ratePerTerm / (1 - Math.pow(1 + ratePerTerm, -totalTerms));
         }
     }
 
-    for (let m = 1; m <= totalMonths; m++) {
+    for (let t = 1; t <= totalTerms; t++) {
         if (bal <= 0) break;
-        mCount++;
+        termCount++;
         
-        if ((m - 1) % freq === 0) {
+        if ((t - 1) % freq === 0) {
             currentYearInt = 0;
         }
 
-        let intr = bal * rate;
+        let intr = bal * ratePerTerm;
         let prin = currentPmt - intr;
-        if (prin > bal) prin = bal;
+        
+        if (prin > bal) {
+            prin = bal;
+            currentPmt = prin + intr;
+        }
         bal -= prin;
 
         let extApp = 0;
-        if (m === 1 && extraType === 'onetime' && extra > 0) {
-            extApp = Math.min(extra, loan); 
+        if (t === 1 && extraType === 'onetime' && extra > 0) {
+            extApp = Math.min(extra, loan);
         } else if (extraType === 'monthly' && bal > 0 && extra > 0) {
             extApp = Math.min(extra, bal);
             bal -= extApp;
             
-            if (strategy === 'lower_payment' && bal > 0 && (totalMonths - m) > 0) {
-                let remMonths = totalMonths - m;
-                currentPmt = rate === 0 ? bal / remMonths : bal * rate / (1 - Math.pow(1 + rate, -remMonths));
+            if (strategy === 'lower_payment' && bal > 0 && (totalTerms - t) > 0) {
+                let remTerms = totalTerms - t;
+                currentPmt = ratePerTerm === 0 ? bal / remTerms : bal * ratePerTerm / (1 - Math.pow(1 + ratePerTerm, -remTerms));
             }
         }
         
@@ -327,38 +334,48 @@ function runSim(loan, rate, totalMonths, extra, extraType, strategy, freq) {
         currentYearInt += intr;
         totDed += yDed;
 
-        let dateText = getMonthYearLabel(m, freq);
+        let dateText = getMonthYearLabel(t, freq);
         dLabels.push(dateText);
 
         tData.push({ label: dateText, p: prin, e: extApp, i: intr, d: yDed, r: Math.max(0, bal) });
         cData.push(Math.max(0, bal));
     }
-    return { totInt: totInt, totDed: totDed, mCount: mCount, tData: tData, cData: cData, finalPmt: currentPmt, startPmt: basePmt, dLabels: dLabels };
+    
+    return { 
+        totInt: totInt, 
+        totDed: totDed, 
+        mCount: termCount, 
+        tData: tData, 
+        cData: cData, 
+        finalPmt: currentPmt, 
+        startPmt: basePmt, 
+        dLabels: dLabels 
+    };
 }
 
 function calculate() {
     let loan = parseFloat(document.getElementById("loan").value) || 0;
     let freq = parseInt(document.getElementById("frequency").value) || 12;
-    let rate = (parseFloat(document.getElementById("rate").value) || 0) / 100 / freq;
+    let annualRate = (parseFloat(document.getElementById("rate").value) || 0) / 100;
     let years = parseInt(document.getElementById("years").value) || 0;
-    let totalMonths = years * freq;
+    let totalTerms = years * freq;
     let extra = parseFloat(document.getElementById("extra").value) || 0;
     let extraType = document.getElementById("extraType").value;
     let strategy = document.getElementById("strategy").value;
 
-    if (loan <= 0 || totalMonths <= 0) { return; }
+    if (loan <= 0 || totalTerms <= 0) { return; }
 
-    let simNormal = runSim(loan, rate, totalMonths, 0, 'monthly', 'shorten', freq);
-    let simExtra = runSim(loan, rate, totalMonths, extra, extraType, strategy, freq);
+    let simNormal = runSim(loan, annualRate, totalTerms, 0, 'monthly', 'shorten', freq);
+    let simExtra = runSim(loan, annualRate, totalTerms, extra, extraType, strategy, freq);
 
     let rText = "";
     if (freq === 12) {
         rText = Math.floor(simExtra.mCount / 12) + " år og " + (simExtra.mCount % 12) + " mdr.";
-        if (simExtra.mCount === totalMonths) rText = years + " år";
+        if (simExtra.mCount === totalTerms) rText = years + " år";
     } else {
         let samledeMdr = simExtra.mCount * 3;
         rText = Math.floor(samledeMdr / 12) + " år og " + (samledeMdr % 12) + " mdr.";
-        if (simExtra.mCount === totalMonths) rText = years + " år";
+        if (simExtra.mCount === totalTerms) rText = years + " år";
     }
 
     let frekvensNavn = freq === 12 ? 'månedlig' : 'kvartalsmæssig';
@@ -464,6 +481,7 @@ function calcStockTax() {
     document.getElementById("stock-result").style.display = "block";
 }
 
+// Start beregninger ved indlæsning
 calculate();
 calcDeduction();
 calcStockTax();
