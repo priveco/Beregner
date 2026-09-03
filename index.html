@@ -27,7 +27,7 @@
     --text: #333333; 
     --border: #e0e0e0; 
 }
-body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 0; margin: 0; -webkit-text-size-adjust: 100%; }
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 0; margin: 0; }
 
 /* Navigation og Header */
 header { background: #ffffff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
@@ -43,8 +43,8 @@ nav button { background: none; color: #555; border: none; padding: 10px 15px; bo
 nav button:hover { background: #f0f2f5; color: var(--primary); }
 nav button.active { background: var(--primary); color: white; }
 
-.container { max-width: 1200px; margin: 20px auto; padding: 0 15px; box-sizing: border-box; width: 100%; overflow: hidden; }
-h1 { font-size: 1.6rem; text-align: center; margin-bottom: 5px; padding: 0 10px; }
+.container { max-width: 1200px; margin: 20px auto; padding: 0 15px; box-sizing: border-box; }
+h1 { font-size: 1.5rem; text-align: center; margin-bottom: 5px; padding: 0 10px; }
 @media (min-width: 768px) { h1 { font-size: 2.2rem; } }
 .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 0.95rem; padding: 0 10px; }
 
@@ -53,44 +53,57 @@ h1 { font-size: 1.6rem; text-align: center; margin-bottom: 5px; padding: 0 10px;
 .page-section.active { display: block; }
 
 /* Layouts og Komponenter */
-.main-layout { display: grid; grid-template-columns: 1fr; gap: 20px; align-items: start; width: 100%; box-sizing: border-box; }
-@media (min-width: 768px) { .main-layout { grid-template-columns: 320px 1fr; gap: 25px; } }
+.main-layout { display: grid; grid-template-columns: 1fr; gap: 25px; align-items: start; }
+@media (min-width: 768px) { .main-layout { grid-template-columns: 320px 1fr; } }
 
-.card { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 15px; box-sizing: border-box; width: 100%; }
+.card { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 15px; box-sizing: border-box; width: 100%; max-width: 100%; overflow: hidden; }
 @media (min-width: 768px) { .card { padding: 20px; margin-bottom: 20px; } }
-.card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 15px 0; border-bottom: 2px solid var(--bg); padding-bottom: 8px; }
-label { font-weight: 600; display: block; margin-top: 12px; font-size: 0.85rem; }
-input, select { width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; margin-top: 4px; font-size: 1rem; -webkit-appearance: none; background-color: #fff; }
-button { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 20px; font-size: 1rem; }
-button:hover { background: var(--primary-hover); }
 
-/* Resultat-kort mobiloptimering */
-.result-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 5px; width: 100%; box-sizing: border-box; }
+.card-title { font-size: 1rem; font-weight: bold; margin: 0 0 12px 0; border-bottom: 2px solid var(--bg); padding-bottom: 6px; }
+@media (min-width: 768px) { .card-title { font-size: 1.1rem; margin-bottom: 15px; padding-bottom: 8px; } }
+
+label { font-weight: 600; display: block; margin-top: 10px; font-size: 0.8rem; }
+@media (min-width: 768px) { label { margin-top: 12px; font-size: 0.85rem; } }
+
+input, select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; margin-top: 4px; font-size: 0.9rem; -webkit-appearance: none; }
+@media (min-width: 768px) { input, select { padding: 11px; font-size: 1rem; } }
+
+button { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; font-size: 0.95rem; }
+@media (min-width: 768px) { button { padding: 14px; margin-top: 20px; font-size: 1rem; } }
+
+/* Resultat-kort mobiloptimering (Kompakt tekst) */
+.result-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 5px; width: 100%; }
 @media (min-width: 480px) { .result-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 992px) { .result-grid { grid-template-columns: repeat(4, 1fr); } }
 
-.result-block { background: var(--bg); padding: 15px; border-radius: 8px; border-top: 4px solid var(--primary); box-sizing: border-box; }
+.result-block { background: var(--bg); padding: 12px; border-radius: 8px; border-top: 4px solid var(--primary); box-sizing: border-box; width: 100%; max-width: 100%; }
 .result-block.success { border-top-color: var(--success); }
-.result-label { font-size: 0.8rem; color: #666; text-transform: uppercase; font-weight: bold; }
-.result-value { font-size: 1.2rem; font-weight: bold; margin-top: 5px; word-break: break-word; }
-.savings-box { background: #e8f5e9; border: 2px dashed var(--success); padding: 15px; border-radius: 8px; margin-top: 15px; }
+.result-label { font-size: 0.75rem; color: #666; text-transform: uppercase; font-weight: bold; }
+.result-value { font-size: 1.1rem; font-weight: bold; margin-top: 4px; word-break: break-word; }
+@media (min-width: 768px) { .result-block { padding: 15px; } .result-value { font-size: 1.25rem; margin-top: 5px; } }
 
-/* Canvas Box responsive-fix */
-#chart-box { width: 100%; box-sizing: border-box; }
-.chart-container { position: relative; height: 260px; width: 100%; }
+.savings-box { background: #e8f5e9; border: 2px dashed var(--success); padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 0.85rem; }
+@media (min-width: 768px) { .savings-box { padding: 15px; margin-top: 15px; font-size: 0.95rem; } }
+
+/* Diagram beholder til tvungen skraldning */
+.chart-container { position: relative; width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden; height: 240px; }
 @media (min-width: 768px) { .chart-container { height: 320px; } }
 
 /* Tabel mobiloptimering (Scrollbar på mobilen) */
-.table-container { overflow-x: auto; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); margin-top: 20px; max-width: 100%; -webkit-overflow-scrolling: touch; }
-table { width: 100%; border-collapse: collapse; text-align: right; min-width: 600px; }
-th, td { padding: 12px 10px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-th { background: #f8f9fa; color: #666; font-size: 0.85rem; font-weight: bold; }
+.table-container { overflow-x: auto; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); margin-top: 15px; max-width: 100%; -webkit-overflow-scrolling: touch; }
+@media (min-width: 768px) { .table-container { margin-top: 20px; } }
+table { width: 100%; border-collapse: collapse; text-align: right; min-width: 550px; }
+th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+@media (min-width: 768px) { th, td { padding: 12px 10px; font-size: 0.9rem; } }
+th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
+@media (min-width: 768px) { th { font-size: 0.85rem; } }
 .text-success { color: var(--success); font-weight: 600; }
 
-.info-text { line-height: 1.6; color: #444; font-size: 0.95rem; }
-.info-text h3, .info-text h4 { color: var(--primary); margin-top: 20px; margin-bottom: 5px; }
-.info-text ul { padding-left: 20px; }
-.info-text li { margin-bottom: 8px; }
+.info-text { line-height: 1.5; color: #444; font-size: 0.85rem; }
+@media (min-width: 768px) { .info-text { line-height: 1.6; font-size: 0.95rem; } }
+.info-text h3, .info-text h4 { color: var(--primary); margin-top: 15px; margin-bottom: 5px; }
+.info-text ul { padding-left: 15px; }
+.info-text li { margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -111,7 +124,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; font-weight: bold; }
     <!-- ================= SIDE 1: LÅNEBEREGNER ================= -->
     <section id="loan-page" class="page-section active">
         <h1>Låne- & Amortiseringsberegner</h1>
-        <p class="info-text" style="max-width: 800px; margin: 0 auto 30px auto; text-align: left; background: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+        <p class="info-text" style="max-width: 800px; margin: 0 auto 20px auto; text-align: left; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
             Hvis du skal til at optage lån, kan du herunder få et bud på, hvordan det kommer til at se ud. Hvis du har et eksisterende lån, kan du også få en idé om, hvor meget du kan spare, hvis du vælger at lave en ekstraindbetaling nu og her. Eller en eventuel besparelse ved at betale en smule ekstra hver måned.
             <br><br>
             <small style="color:#666;"><i>Bemærk, at alt på siden er estimater. Kontakt din egen bank eller realkreditinstitut for at få at vide præcis hvordan lånet vil blive hos dem.</i></small>
@@ -161,7 +174,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.85rem; font-weight: bold; }
                 <div id="chart-box" class="card" style="display:none;">
                     <div class="card-title">Afvikling af restgæld over tid</div>
                     <div class="chart-container">
-                        <canvas id="loanChart"></canvas>
+                        <canvas id="loanChart" style="height: 100%; width: 100%;"></canvas>
                     </div>
                 </div>
                 <div id="schedule-box" class="table-container" style="display:none;">
@@ -417,9 +430,9 @@ function calculate() {
             <div class="result-block"><div class="result-label">` + ydelseLabel + `</div><div class="result-value">` + ydelseValue + `</div></div>
             <div class="result-block">
                 <div class="result-label">Total Pris</div>
-                <div class="result-value" style="font-size: 1rem; font-weight: normal; margin-top: 5px; line-height: 1.35;">
-                    Samlet tilbagebetaling:<br><strong style="font-size: 1.15rem; color:#2c3e50;">` + formatDKK(samletTilbagebetaling) + `</strong><br>
-                    <span style="font-size: 0.85rem; color: #c62828; font-weight:600;">Heraf renter: ` + formatDKK(simExtra.totInt) + `</span>
+                <div class="result-value" style="font-size: 0.9rem; font-weight: normal; margin-top: 4px; line-height: 1.3;">
+                    Samlet tilbagebetaling:<br><strong style="font-size: 1.05rem; color:#2c3e50;">` + formatDKK(samletTilbagebetaling) + `</strong><br>
+                    <span style="font-size: 0.8rem; color: #c62828; font-weight:600;">Heraf renter: ` + formatDKK(simExtra.totInt) + `</span>
                 </div>
             </div>
             <div class="result-block success"><div class="result-label">Est. Rentefradrag</div><div class="result-value text-success">` + formatDKK(simExtra.totDed) + `</div></div>
@@ -441,7 +454,7 @@ function calculate() {
             ? "Da du beholder din oprindelige månedlige ydelse, sparer du i alt <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i renteudgifter og skærer <span class='text-success'><b>" + tidsText + "</b></span> af lånets løbetid!"
             : "Da du fastholder din slutdato, vil din månedlige udgift falde løbende efter indbetalingen. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samlede renter, og din månedlige udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b>!";
         
-        document.getElementById("result").innerHTML += `<div class="savings-box"><h3 style="margin:0 0 5px 0; color:var(--success); font-size:1.1rem;">🎉 Gevinst:</h3><p style="margin:0; font-size:0.95rem;">${forklaringText}</p></div>`;
+        document.getElementById("result").innerHTML += `<div class="savings-box"><h3 style="margin:0 0 5px 0; color:var(--success); font-size:1rem;">🎉 Gevinst:</h3><p style="margin:0; font-size:0.85rem;">${forklaringText}</p></div>`;
     }
 
     let html = "";
