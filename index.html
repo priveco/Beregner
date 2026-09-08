@@ -123,7 +123,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
 
     <!-- ================= SIDE 1: Beregn lån ================= -->
     <section id="loan-page" class="page-section active">
-        <h1>Låneberegner</h1>
+        <h1>Beregn lån</h1>
         <p class="info-text" style="max-width: 800px; margin: 0 auto 20px auto; text-align: left; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
             Hvis du skal til at optage lån, kan du herunder få et bud på, hvordan dine omkostninger kommer til at se ud. Du kan både se din månedlige ydelse, fordelingen af afdrag og renter, samt hvor meget du cirka kan forvente i rentefradrag. Hvis du har et eksisterende lån, kan du også få en idé om, hvor meget du kan spare, hvis du vælger at lave en ekstraindbetaling nu og her. Eller en eventuel besparelse ved at betale ekstra hver måned. Alt du skal gøre er at indtaste dine værdier nedenfor og trykke på "Beregn nu".
             <br><br>
@@ -198,8 +198,8 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
 
     <!-- ================= SIDE 2: Beregn rentefradrag ================= -->
     <section id="deduction-page" class="page-section">
-        <h1>Beregn Rentefradrag</h1>
-        <p class="subtitle">Herunder kan du beregne dit rentefradrag. Du skal bare indtaste hvor meget du regner med at betale i renter, og om du er gift eller ej. Derefter trykker du blot på Beregn fradragets værdi. Samtidigt er det også beskrevet, hvordan udregningen af rentefradraget fortages.</p>
+        <h1>Beregn rentefradrag</h1>
+        <p class="subtitle">Herunder kan du beregne dit rentefradrag. Du skal bare indtaste hvor meget du regner med at betale i renter, og om du er gift eller ej. Derefter trykker du blot på Beregn fradragets værdi. Du kan også læse mere om, hvordan udregningen af rentefradraget fortages. Bemærk: I beregningen antages det, at din eventuelle ægtefælle ingen renteudgifter har.</p>
 
         <div class="main-layout">
             <div class="card">
@@ -238,7 +238,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
     <!-- ================= SIDE 3: Beregn Aktieskat ================= -->
     <section id="stock-page" class="page-section">
         <h1>Beregn aktieskat</h1>
-        <p class="subtitle">Herunder kan du, ved at indtaste din forventede aktieindkomst, se hvor meget af gevinsten du kommer til at betale i skat. Samtidigt kan du lære lidt om, hvordan reglerne for aktiebeskatning er sat sammen.</p>
+        <p class="subtitle">Herunder kan du, ved at indtaste din forventede aktieindkomst samt depottype, se hvor meget af gevinsten du kommer til at betale i skat. Du kan også læse mere om, principperne bag beskatning af aktieindkomst. Bemærk: I beregningen antages det, at din eventuelle ægtefælle ingen aktieindkomst har.</p>
 
         <div class="main-layout">
             <div class="card">
@@ -248,6 +248,11 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                     <option value="regular">Almindeligt depot (Frie midler)</option>
                     <option value="ask">Aktiesparekonto (ASK)</option>
                     <option value="pension">Pensionsdepot (PAL-skat)</option>
+                </select>
+                <label for="civil-status-aktie">Civilstatus</label>
+                <select id="civil-status-aktie" onchange="calcDeduction()">
+                    <option value="single">Enlig</option>
+                    <option value="married">Gift / Samlevende</option>
                 </select>
 
                 <label for="stock-profit">Årlig aktiegevinst / kursgevinst / udbytte (kr.)</label>
@@ -500,9 +505,11 @@ function calcStockTax() {
     let profit = parseFloat(document.getElementById("stock-profit").value) || 0;
     let accountType = document.getElementById("account-type").value;
     let tax = 0;
+    let status = document.getElementById("civil-status-aktie").value;
+    
+    let limit = status === 'single' ? 79400 : 158800;
     
     if (accountType === 'regular') {
-        const limit = 79400; 
         if (profit <= limit) {
             tax = profit * 0.27; 
         } else {
