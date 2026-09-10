@@ -481,6 +481,12 @@ function calculate() {
     // Vis eller skjul overskriften i tabellen baseret på om der afdrages ekstra
     document.getElementById("th-extra").style.display = showExtraColumn ? "" : "none";
 
+    // Sænk tabellens mindste bredde på mobilen, hvis vi har fjernet en kolonne
+    let tableEl = document.querySelector("#schedule-box table");
+    if (tableEl) {
+        tableEl.style.minWidth = showExtraColumn ? "550px" : "420px";
+    }
+  
     let html = "";
     simExtra.tData.forEach(function(r) {
         html += `<tr>`;
