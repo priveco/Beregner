@@ -196,7 +196,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                             <tr>
                                 <th id="th-term" style="text-align:center;">Termin</th>
                                 <th>Ordinært Afdrag</th>
-                                <th>Ekstraordinært Afdrag</th>
+                                <th id="th-extra">Ekstraordinært Afdrag</th>
                                 <th>Renter</th>
                                 <th>Rentefradrag (33,1% / 25,1%)</th>
                                 <th>Restgæld ultimo</th>
@@ -475,10 +475,29 @@ function calculate() {
         document.getElementById("result").innerHTML += `<div class="savings-box"><h3 style="margin:0 0 5px 0; color:var(--success); font-size:1rem;">🎉 Gevinst:</h3><p style="margin:0; font-size:0.85rem;">${forklaringText}</p></div>`;
     }
 
+    // Tjek om der overhovedet er indtastet ekstraordinære afdrag
+    let showExtraColumn = extra > 0;
+    
+    // Vis eller skjul overskriften i tabellen baseret på om der afdrages ekstra
+    document.getElementById("th-extra").style.display = showExtraColumn ? "" : "none";
+
     let html = "";
     simExtra.tData.forEach(function(r) {
-        html += `<tr><td style="text-align:center;font-weight:bold;">${r.label}</td><td>${formatDKK(r.p)}</td><td style="${r.e>0?'color:var(--primary);font-weight:600;':''}">${formatDKK(r.e)}</td><td>${formatDKK(r.i)}</td><td class="text-success">${formatDKK(r.d)}</td><td><b>${formatDKK(r.r)}</b></td></tr>`;
+        html += `<tr>`;
+        html += `<td style="text-align:center;font-weight:bold;">${r.label}</td>`;
+        html += `<td>${formatDKK(r.p)}</td>`;
+        
+        // Indsæt kun cellen hvis der rent faktisk er valgt ekstraordinære afdrag
+        if (showExtraColumn) {
+            html += `<td style="${r.e > 0 ? 'color:var(--primary);font-weight:600;' : ''}">${formatDKK(r.e)}</td>`;
+        }
+        
+        html += `<td>${formatDKK(r.i)}</td>`;
+        html += `<td class="text-success">${formatDKK(r.d)}</td>`;
+        html += `<td><b>${formatDKK(r.r)}</b></td>`;
+        html += `</tr>`;
     });
+    
     document.getElementById("schedule-body").innerHTML = html;
     document.getElementById("schedule-box").style.display = "block";
     document.getElementById("chart-box").style.display = "block";
