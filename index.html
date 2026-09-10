@@ -49,6 +49,17 @@ h1 { font-size: 1.5rem; text-align: center; margin-bottom: 5px; padding: 0 10px;
 @media (min-width: 768px) { h1 { font-size: 2.2rem; } }
 .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 0.95rem; padding: 0 10px; }
 
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
 /* Side-styring */
 .page-section { display: none; }
 .page-section.active { display: block; }
@@ -121,10 +132,11 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
 </header>
 
 <div class="container">
+<h1 class="visually-hidden">SimpelØkonomi - Beregn lån,beregn rentefradrag og beregn skat af aktier</h1>
 
     <!-- ================= SIDE 1: Beregn lån ================= -->
     <section id="loan-page" class="page-section active">
-        <h1>Beregn lån</h1>
+        <h2>Beregn lån</h2>
         <p class="info-text" style="max-width: 800px; margin: 0 auto 20px auto; text-align: left; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
             Hvis du skal til at optage lån, kan du herunder få et bud på, hvordan dine omkostninger kommer til at se ud. Du kan både se din månedlige ydelse, fordelingen af afdrag og renter, samt hvor meget du cirka kan forvente i rentefradrag. Hvis du har et eksisterende lån, kan du også få en idé om, hvor meget du kan spare, hvis du vælger at lave en ekstraindbetaling nu og her. Eller en eventuel besparelse ved at betale ekstra hver måned. Alt du skal gøre er at indtaste dine værdier nedenfor og trykke på "Beregn nu".
             <br><br>
@@ -199,7 +211,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
 
     <!-- ================= SIDE 2: Beregn rentefradrag ================= -->
     <section id="deduction-page" class="page-section">
-        <h1>Beregn rentefradrag</h1>
+        <h2>Beregn rentefradrag</h2>
         <p class="subtitle">Herunder kan du beregne dit rentefradrag. Du skal bare indtaste hvor meget du regner med at betale i renter, og om du er gift eller ej. Derefter trykker du blot på Beregn fradragets værdi. Du kan også læse mere om, hvordan udregningen af rentefradraget fortages. Bemærk: I beregningen antages det, at din eventuelle ægtefælle ingen renteudgifter har.</p>
 
         <div class="main-layout">
@@ -238,7 +250,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
 
     <!-- ================= SIDE 3: Beregn Aktieskat ================= -->
     <section id="stock-page" class="page-section">
-        <h1>Beregn aktieskat</h1>
+        <h2>Beregn aktieskat</h2>
         <p class="subtitle">Herunder kan du, ved at indtaste din forventede aktieindkomst samt depottype, se hvor meget af gevinsten du kommer til at betale i skat. Du kan også læse mere om, principperne bag beskatning af aktieindkomst. Bemærk: I beregningen antages det, at din eventuelle ægtefælle ingen aktieindkomst har.</p>
 
         <div class="main-layout">
