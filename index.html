@@ -161,22 +161,6 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                     <button onclick="calculate()">Beregn nu</button>
                 </div>
 
-                <div class="card">
-                    <div class="card-title">Valgfri ekstraordinær indbetaling</div>
-                    <label for="extraType">Frekvens af ekstra afdrag</label>
-                    <select id="extraType">
-                        <option value="monthly">Hver måned / termin (Fast beløb)</option>
-                        <option value="onetime">Engangsbeløb (Her og nu)</option>
-                    </select>
-                    <label for="extra">Ekstraordinært beløb (kr.)</label>
-                    <input id="extra" type="number" value="0">
-                    <label for="strategy">Bankens strategi efter afdrag</label>
-                    <select id="strategy">
-                        <option value="shorten">Afkort løbetid (Behold samme månedlige ydelse)</option>
-                        <option value="lower_payment">Sænk månedlig ydelse (Fasthold slutdato)</option>
-                    </select>
-                    <button onclick="calculate()">Beregn nu</button>
-                </div>
             </div>
 
             <div>
@@ -196,7 +180,6 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                             <tr>
                                 <th id="th-term" style="text-align:center;">Termin</th>
                                 <th>Ordinært Afdrag</th>
-                                <th id="th-extra">Ekstraordinært Afdrag</th>
                                 <th>Renter</th>
                                 <th>Rentefradrag (33,1% / 25,1%)</th>
                                 <th>Restgæld ultimo</th>
@@ -328,7 +311,7 @@ function getMonthYearLabel(index, freq) {
     return months[d.getMonth()] + ". " + d.getFullYear();
 }
 
-function runSim(loan, annualRate, totalTerms, extra, extraType, strategy, freq) {
+function runSim(loan, annualRate, totalTerms, freq) {
     let bal = loan, totInt = 0, totDed = 0, termCount = 0, tData = [];
     
     let ratePerTerm = annualRate / freq;
@@ -338,14 +321,6 @@ function runSim(loan, annualRate, totalTerms, extra, extraType, strategy, freq) 
     let cData = [loan];
     let dLabels = ["Start"];
     let currentYearInt = 0;
-
-    if (extraType === 'onetime' && extra > 0) {
-        let firstCut = Math.min(extra, bal);
-        bal -= firstCut;
-        if (strategy === 'lower_payment' && bal > 0) {
-            currentPmt = ratePerTerm === 0 ? bal / totalTerms : bal * ratePerTerm / (1 - Math.pow(1 + ratePerTerm, -totalTerms));
-        }
-    }
 
     for (let t = 1; t <= totalTerms; t++) {
         if (bal <= 0) break;
@@ -363,20 +338,7 @@ function runSim(loan, annualRate, totalTerms, extra, extraType, strategy, freq) 
             currentPmt = prin + intr;
         }
         bal -= prin;
-
-        let extApp = 0;
-        if (t === 1 && extraType === 'onetime' && extra > 0) {
-            extApp = Math.min(extra, loan);
-        } else if (extraType === 'monthly' && bal > 0 && extra > 0) {
-            extApp = Math.min(extra, bal);
-            bal -= extApp;
-            
-            if (strategy === 'lower_payment' && bal > 0 && (totalTerms - t) > 0) {
-                let remTerms = totalTerms - t;
-                currentPmt = ratePerTerm === 0 ? bal / remTerms : bal * ratePerTerm / (1 - Math.pow(1 + ratePerTerm, -remTerms));
-            }
-        }
-        
+     
         totInt += intr;
 
         let yDed = 0;
@@ -395,7 +357,7 @@ function runSim(loan, annualRate, totalTerms, extra, extraType, strategy, freq) 
         let dateText = getMonthYearLabel(t, freq);
         dLabels.push(dateText);
 
-        tData.push({ label: dateText, p: prin, e: extApp, i: intr, d: yDed, r: Math.max(0, bal) });
+        tData.push({ label: dateText, p: prin, i: intr, d: yDed, r: Math.max(0, bal) });
         cData.push(Math.max(0, bal));
     }
     
@@ -417,29 +379,17 @@ function calculate() {
     let annualRate = (parseFloat(document.getElementById("rate").value) || 0) / 100;
     let years = parseInt(document.getElementById("years").value) || 0;
     let totalTerms = years * freq;
-    let extra = parseFloat(document.getElementById("extra").value) || 0;
-    let extraType = document.getElementById("extraType").value;
-    let strategy = document.getElementById("strategy").value;
-
+   
     if (loan <= 0 || totalTerms <= 0) { return; }
 
-    let simNormal = runSim(loan, annualRate, totalTerms, 0, 'monthly', 'shorten', freq);
-    let simExtra = runSim(loan, annualRate, totalTerms, extra, extraType, strategy, freq);
-
-    let rText = "";
-    if (freq === 12) {
-        rText = Math.floor(simExtra.mCount / 12) + " år og " + (simExtra.mCount % 12) + " mdr.";
-        if (simExtra.mCount === totalTerms) rText = years + " år";
-    } else {
-        let samledeMdr = simExtra.mCount * 3;
-        rText = Math.floor(samledeMdr / 12) + " år og " + (samledeMdr % 12) + " mdr.";
-        if (simExtra.mCount === totalTerms) rText = years + " år";
-    }
+    let simNormal = runSim(loan, annualRate, totalTerms, freq);
+    
+    let rText = years + " år";
 
     let frekvensNavn = freq === 12 ? 'månedlig' : 'kvartalsmæssig';
-    let ydelseLabel = strategy === 'lower_payment' && extra > 0 ? 'Ny ydelse (' + frekvensNavn + ', slut)' : 'Ordinær ydelse (' + frekvensNavn + ')';
-    let ydelseValue = strategy === 'lower_payment' && extra > 0 ? formatDKK(simExtra.finalPmt) : formatDKK(simExtra.startPmt);
-    let samletTilbagebetaling = loan + simExtra.totInt;
+    let ydelseLabel = 'Ordinær ydelse (' + frekvensNavn + ')';
+    let ydelseValue = formatDKK(simNormal.startPmt);
+    let samletTilbagebetaling = loan + simNormal.totInt;
 
     document.getElementById("th-term").innerText = freq === 12 ? "Måned" : "Kvartal";
 
@@ -450,54 +400,21 @@ function calculate() {
                 <div class="result-label">Total Pris</div>
                 <div class="result-value" style="font-size: 0.9rem; font-weight: normal; margin-top: 4px; line-height: 1.3;">
                     Samlet tilbagebetaling:<br><strong style="font-size: 1.05rem; color:#2c3e50;">` + formatDKK(samletTilbagebetaling) + `</strong><br>
-                    <span style="font-size: 0.8rem; color: #c62828; font-weight:600;">Heraf renter: ` + formatDKK(simExtra.totInt) + `</span>
+                    <span style="font-size: 0.8rem; color: #c62828; font-weight:600;">Heraf renter: ` + formatDKK(simNormal.totInt) + `</span>
                 </div>
             </div>
-            <div class="result-block success"><div class="result-label">Est. Rentefradrag</div><div class="result-value text-success">` + formatDKK(simExtra.totDed) + `</div></div>
+            <div class="result-block success"><div class="result-label">Est. Rentefradrag</div><div class="result-value text-success">` + formatDKK(simNormal.totDed) + `</div></div>
             <div class="result-block"><div class="result-label">Reel løbetid</div><div class="result-value">` + rText + `</div></div>
         </div>
     `;
 
-    if (extra > 0) {
-        let renteBesparelse = simNormal.totInt - simExtra.totInt;
-        let terminerSparet = simNormal.mCount - simExtra.mCount;
-        let mdrSparet = freq === 12 ? terminerSparet : terminerSparet * 3;
-        let aarSparet = Math.floor(mdrSparet / 12);
-        let resterendeMdrSparet = mdrSparet % 12;
-        let tidsText = "";
-        if (aarSparet > 0) tidsText += aarSparet + " år ";
-        if (resterendeMdrSparet > 0) tidsText += resterendeMdrSparet + " mdr.";
-
-        let forklaringText = strategy === 'shorten' 
-            ? "Da du beholder din oprindelige månedlige ydelse, sparer du i alt <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i renteudgifter og skærer <span class='text-success'><b>" + tidsText + "</b></span> af lånets løbetid!"
-            : "Da du fastholder din slutdato, vil din månedlige udgift falde løbende efter indbetalingen. Du sparer stadig <span class='text-success'><b>" + formatDKK(renteBesparelse) + "</b></span> i samlede renter, og din månedlige udgift lander til sidst på <b>" + formatDKK(simExtra.finalPmt) + "</b>!";
-        
-        document.getElementById("result").innerHTML += `<div class="savings-box"><h3 style="margin:0 0 5px 0; color:var(--success); font-size:1rem;">🎉 Gevinst:</h3><p style="margin:0; font-size:0.85rem;">${forklaringText}</p></div>`;
-    }
-
-    // Tjek om der overhovedet er indtastet ekstraordinære afdrag
-    let showExtraColumn = extra > 0;
-    
-    // Vis eller skjul overskriften i tabellen baseret på om der afdrages ekstra
-    document.getElementById("th-extra").style.display = showExtraColumn ? "" : "none";
-
-    // Sænk tabellens mindste bredde på mobilen, hvis vi har fjernet en kolonne
-    let tableEl = document.querySelector("#schedule-box table");
-    if (tableEl) {
-        tableEl.style.minWidth = showExtraColumn ? "550px" : "360px";
-    }
   
     let html = "";
-    simExtra.tData.forEach(function(r) {
+    simNormal.tData.forEach(function(r) {
         html += `<tr>`;
         html += `<td style="text-align:center;font-weight:bold;">${r.label}</td>`;
         html += `<td>${formatDKK(r.p)}</td>`;
-        
-        // Indsæt kun cellen hvis der rent faktisk er valgt ekstraordinære afdrag
-        if (showExtraColumn) {
-            html += `<td style="${r.e > 0 ? 'color:var(--primary);font-weight:600;' : ''}">${formatDKK(r.e)}</td>`;
-        }
-        
+             
         html += `<td>${formatDKK(r.i)}</td>`;
         html += `<td class="text-success">${formatDKK(r.d)}</td>`;
         html += `<td><b>${formatDKK(r.r)}</b></td>`;
@@ -513,8 +430,8 @@ function calculate() {
     myChart = new Chart(ctx, {
         type: 'line',
         data: { 
-            labels: simExtra.dLabels, 
-            datasets: [{ label: 'Restgæld (kr.)', data: simExtra.cData, borderColor: '#005ea6', backgroundColor: 'rgba(0, 94, 166, 0.1)', fill: true, tension: 0.1, borderWidth: 3 }] 
+            labels: simNormal.dLabels, 
+            datasets: [{ label: 'Restgæld (kr.)', data: simNormal.cData, borderColor: '#005ea6', backgroundColor: 'rgba(0, 94, 166, 0.1)', fill: true, tension: 0.1, borderWidth: 3 }] 
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function(val) { return val.toLocaleString('da-DK') + ' kr.'; } } } } }
     });
