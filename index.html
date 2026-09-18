@@ -158,6 +158,24 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                         <option value="12">Månedlig</option>
                         <option value="4">Kvartalsmæssig</option>
                     </select>
+                    <label for="interest-only">Afdragsfrihed (år)</label>
+                    <select id="interest-only">
+                        <option value="0">Ingen afdragsfrihed</option>
+                        <option value="1">1 år</option>
+                        <option value="2">2 år</option>
+                        <option value="3">3 år</option>
+                        <option value="4">4 år</option>
+                        <option value="5">5 år</option>
+                        <option value="6">6 år</option>
+                        <option value="7">7 år</option>
+                        <option value="8">8 år</option>
+                        <option value="9">9 år</option>
+                        <option value="10">10 år</option>
+                        <option value="15">15 år</option>
+                        <option value="20">20 år</option>
+                        <option value="25">25 år</option>
+                        <option value="30">30 år</option>
+                    </select>
                     <button onclick="calculate()">Beregn nu</button>
                 </div>
 
@@ -311,12 +329,17 @@ function getMonthYearLabel(index, freq) {
     return months[d.getMonth()] + ". " + d.getFullYear();
 }
 
-function runSim(loan, annualRate, totalTerms, freq) {
+function runSim(loan, annualRate, totalTerms, freq, interestOnlyYears) {
     let bal = loan, totInt = 0, totDed = 0, termCount = 0, tData = [];
     
     let ratePerTerm = annualRate / freq;
-    let basePmt = ratePerTerm === 0 ? loan / totalTerms : loan * ratePerTerm / (1 - Math.pow(1 + ratePerTerm, -totalTerms));
-    let currentPmt = basePmt;
+    
+    // Beregn hvor mange terminer (måneder/kvartaler) der er afdragsfrie
+    let interestOnlyTerms = interestOnlyYears * freq;
+    
+    // Beregn ydelsen EFTER afdragsfrihed (for den resterende løbetid)
+    let remainingTerms = totalTerms - interestOnlyTerms;
+    let pmtAfterInterestOnly = ratePerTerm === 0 ? loan / remainingTerms : loan * ratePerTerm / (1 - Math.pow(1 + ratePerTerm, -remainingTerms));
     
     let cData = [loan];
     let dLabels = ["Start"];
@@ -331,7 +354,17 @@ function runSim(loan, annualRate, totalTerms, freq) {
         }
 
         let intr = bal * ratePerTerm;
-        let prin = currentPmt - intr;
+        let prin = 0;
+        let currentPmt = 0;
+
+        // NY LOGIK: Tjek om vi stadig er i den afdragsfrie periode
+        if (t <= interestOnlyTerms) {
+            prin = 0;
+            currentPmt = intr; // Ydelsen er kun renten, intet afdrag
+        } else {
+            currentPmt = pmtAfterInterestOnly; // Nu skal der afdrages for alvor
+            prin = currentPmt - intr;
+        }
         
         if (prin > bal) {
             prin = bal;
@@ -361,14 +394,18 @@ function runSim(loan, annualRate, totalTerms, freq) {
         cData.push(Math.max(0, bal));
     }
     
+    // Find startydelsen (hvis afdragsfri, er det den første rentetermin, ellers normal ydelse)
+    let startYdelse = interestOnlyTerms > 0 ? (loan * ratePerTerm) : pmtAfterInterestOnly;
+    
     return { 
         totInt: totInt, 
         totDed: totDed, 
         mCount: termCount, 
         tData: tData, 
         cData: cData, 
-        finalPmt: currentPmt, 
-        startPmt: basePmt, 
+        startPmt: startYdelse,
+        pmtAfter: pmtAfterInterestOnly,
+        interestOnlyTerms: interestOnlyTerms,
         dLabels: dLabels 
     };
 }
@@ -378,19 +415,40 @@ function calculate() {
     let freq = parseInt(document.getElementById("frequency").value) || 12;
     let annualRate = (parseFloat(document.getElementById("rate").value) || 0) / 100;
     let years = parseInt(document.getElementById("years").value) || 0;
+    
+    // NYT: Hent den valgte afdragsfrihed fra HTML-feltet (Trin 2)
+    let interestOnlyYears = parseInt(document.getElementById("interest-only").value) || 0;
+    
+    // Sikkerhed: Afdragsfrihed må højest være 1 år mindre end lånets samlede løbetid
+    if (interestOnlyYears >= years && years > 1) { 
+        interestOnlyYears = years - 1; 
+    } else if (interestOnlyYears >= years) {
+        interestOnlyYears = 0;
+    }
+
     let totalTerms = years * freq;
    
     if (loan <= 0 || totalTerms <= 0) { return; }
 
-    let simNormal = runSim(loan, annualRate, totalTerms, freq);
+    // NYT: Vi sender interestOnlyYears med over i simuleringsfunktionen
+    let simNormal = runSim(loan, annualRate, totalTerms, freq, interestOnlyYears);
     
     let rText = years + " år";
 
     let frekvensNavn = freq === 12 ? 'månedlig' : 'kvartalsmæssig';
-    let ydelseLabel = 'Ordinær ydelse (' + frekvensNavn + ')';
+    let ydelseLabel = 'Ydelse (' + frekvensNavn + ')';
+    
+    // NY LOGIK: Vis både ydelsen under afdragsfrihed OG efter afdragsfrihed
     let ydelseValue = formatDKK(simNormal.startPmt);
+    if (interestOnlyYears > 0) {
+        ydelseValue = `<span style="font-size:0.75rem; color:#666; font-weight:normal; display:block; margin-bottom:2px;">Første ${interestOnlyYears} år (kun rente):</span>` + 
+                      formatDKK(simNormal.startPmt) + 
+                      `<br><span style="font-size:0.75rem; color:#666; font-weight:normal; display:block; margin-top:6px; margin-bottom:2px;">Derefter (med afdrag):</span>` + 
+                      formatDKK(simNormal.pmtAfter);
+    }
+    
     let samletTilbagebetaling = loan + simNormal.totInt;
-
+  
     document.getElementById("th-term").innerText = freq === 12 ? "Måned" : "Kvartal";
 
     document.getElementById("result").innerHTML = `
