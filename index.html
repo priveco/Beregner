@@ -154,12 +154,12 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                     <label for="years">Løbetid (år)</label>
                     <input id="years" type="number" value="30">
                     <label for="frequency">Afdragsfrekvens</label>
-                    <select id="frequency">
+                    <select id="frequency" onchange="calculate()">
                         <option value="12">Månedlig</option>
                         <option value="4">Kvartalsmæssig</option>
                     </select>
                     <label for="interest-only">Afdragsfrihed (år)</label>
-                    <select id="interest-only">
+                    <select id="interest-only" onchange="calculate()">
                         <option value="0">Ingen afdragsfrihed</option>
                         <option value="1">1 år</option>
                         <option value="2">2 år</option>
