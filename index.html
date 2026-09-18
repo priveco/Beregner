@@ -130,20 +130,35 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
     <!-- ================= SIDE 1: Beregn lån ================= -->
     <section id="loan-page" class="page-section active">
         <h2>Beregn lån</h2>
-        <div class="info-text" style="max-width: 800px; margin: 0 auto 20px auto; text-align: left; background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-            <p style="margin-top: 0; font-size: 1.05rem; font-weight: 500; color: var(--primary);">Skab fuldt overblik over dit kommende lån – med eller uden afdragsfrihed.</p>
+        <div class="info-text" style="max-width: 800px; margin: 0 auto 20px auto; text-align: left; background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 20px;">
+    
+            <div style="display: grid; grid-template-columns: 1fr; gap: 20px; align-items: center;">
+                <script>
+                    if (window.innerWidth > 600) {
+                        document.currentScript.parentElement.style.gridTemplateColumns = "1fr 180px";
+                }
+                </script>
+        
+                <div>
+                    <p style="margin-top: 0; font-size: 1.05rem; font-weight: 500; color: var(--primary);">Skab fuldt overblik over dit kommende lån – med eller uden afdragsfrihed.</p>
+                    <p style="margin-bottom: 15px;">Uanset om du overvejer et klassisk realkreditlån eller vil lege med økonomien i et afdragsfrit lån, kan du her simulere dit fulde lånerejsestykke. Indtast dine tal nedenfor og se øjeblikkeligt:</p>
             
-            <p style="margin-bottom: 15px;">Uanset om du overvejer et klassisk realkreditlån eller vil lege med økonomien i et afdragsfrit lån, kan du her simulere dit fulde lånerejsestykke. Indtast dine tal nedenfor og se øjeblikkeligt:</p>
-            
-            <ul style="margin-bottom: 20px; padding-left: 20px;">
-                <li><b>Månedlig ydelse:</b> Se præcis, hvad lånet koster dig før og efter en eventuel afdragsfri periode.</li>
-                <li><b>Rentefradragets værdi:</b> Få et estimat på, hvor meget staten betaler tilbage i skattebesparelse baseret på 2026-reglerne.</li>
-                <li><b>Afviklingsgraf:</b> Følg din restgæld visuelt år for år og se effekten af din valgte løbetid.</li>
-            </ul>
-            
-            <p style="margin-bottom: 15px; font-weight: 600;">Alt du skal gøre er at indtaste dine lånedata og trykke på "Beregn nu".</p>
-            
-            <small style="color:#666; display: block; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 15px;">
+                    <ul style="margin-bottom: 15px; padding-left: 20px;">
+                        <li><b>Månedlig ydelse:</b> Se præcis, hvad lånet koster dig før og efter en eventuel afdragsfri periode.</li>
+                        <li><b>Rentefradragets værdi:</b> Få et estimat på, hvor meget staten betaler tilbage i skattebesparelse baseret på 2026-reglerne.</li>
+                        <li><b>Afviklingsgraf:</b> Følg din restgæld visuelt år for år og se effekten af din valgte løbetid.</li>
+                    </ul>
+                </div>
+        
+                <div style="text-align: center;">
+                    <!-- HER PLACERES DIT BILLEDE (Husk at rette filnavnet under src) -->
+                    <img src="laan.png" alt="Illustration af økonomisk udveksling" style="width: 100%; max-width: 160px; height: auto; opacity: 0.85;">
+                </div>
+            </div>
+    
+            <p style="margin: 0; font-weight: 600;">Alt du skal gøre er at indtaste dine lånedata og trykke på "Beregn nu".</p>
+    
+            <small style="color:#666; display: block; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 5px;">
                 <i>Bemærk: Beregningen er vejledende og baseret på simplificerede estimater. Kontakt altid din bank eller dit realkreditinstitut for at få et bindende tilbud tilpasset din specifikke situation.</i>
             </small>
         </div>
