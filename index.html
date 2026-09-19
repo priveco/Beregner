@@ -211,7 +211,12 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                         <canvas id="loanChart" style="height: 100%; width: 100%;"></canvas>
                     </div>
                 </div>
-                <div id="schedule-box" class="table-container" style="display:none;">
+
+                 <button id="toggle-schedule-btn" onclick="toggleSchedule()" style="display:none; background: #f0f2f5; color: var(--primary); border: 1px solid var(--primary); margin-top: 15px;">
+                    👁️ Vis fuld afviklingstabel (termin for termin)
+                </button>
+                
+                <div id="schedule-box" class="table-container" style="display:none; margin-top: 15px;">
                     <table>
                         <thead>
                             <tr>
@@ -537,7 +542,11 @@ function calculate() {
     });
     
     document.getElementById("schedule-body").innerHTML = html;
-    document.getElementById("schedule-box").style.display = "block";
+    document.getElementById("toggle-schedule-btn").style.display = "block";
+    document.getElementById("schedule-box").style.display = "none"; 
+    document.getElementById("toggle-schedule-btn").innerText = "👁️ Vis fuld afviklingstabel (termin for termin)";
+    
+    document.getElementById("chart-box").style.display = "block";
     document.getElementById("chart-box").style.display = "block";
 
     let ctx = document.getElementById('loanChart').getContext('2d');
@@ -598,6 +607,19 @@ function calcStockTax() {
     document.getElementById("stock-result").style.display = "block";
 }
 
+function toggleSchedule() {
+    let box = document.getElementById("schedule-box");
+    let btn = document.getElementById("toggle-schedule-btn");
+    
+    if (box.style.display === "none") {
+        box.style.display = "block";
+        btn.innerText = "📁 Skjul afviklingstabel";
+    } else {
+        box.style.display = "none";
+        btn.innerText = "👁️ Vis fuld afviklingstabel (termin for termin)";
+    }
+}
+    
 // Start beregninger ved indlæsning
 calculate();
 calcDeduction();
