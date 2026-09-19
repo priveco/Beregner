@@ -141,7 +141,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
         
                 <div>
                     <p style="margin-top: 0; font-size: 1.05rem; font-weight: 500; color: var(--primary);">Skab fuldt overblik over dit kommende lån – med eller uden afdragsfrihed.</p>
-                    <p style="margin-bottom: 15px;">Uanset om du overvejer et klassisk realkreditlån eller vil lege med økonomien i et afdragsfrit lån, kan du her simulere dit fulde lånerejsestykke. Indtast dine tal nedenfor og se øjeblikkeligt:</p>
+                    <p style="margin-bottom: 15px;">Uanset om du overvejer et klassisk realkreditlån eller vil lege med økonomien i et afdragsfrit lån, kan du her simulere dit fulde låneregnestykke. Indtast dine tal nedenfor og se øjeblikkeligt:</p>
             
                     <ul style="margin-bottom: 15px; padding-left: 20px;">
                         <li><b>Månedlig ydelse:</b> Se præcis, hvad lånet koster dig før og efter en eventuel afdragsfri periode.</li>
@@ -155,7 +155,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                 </div>
             </div>
     
-            <p style="margin: 0; font-weight: 600;">Alt du skal gøre er at indtaste dine lånedata og trykke på "Beregn nu".</p>
+            <p style="margin: 0; font-weight: 600;">Hvis du gerne vil se hele din afbetalingsplan, kan du folde den ud ved at trykke på &quot;Vis fuld afviklingstabel&quot;" Er du interesseret i at læse lidt mere om lån står det nederst på siden.</p>
     
             <small style="color:#666; display: block; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 5px;">
                 <i>Bemærk: Beregningen er vejledende og baseret på simplificerede estimater. Kontakt altid din bank eller dit realkreditinstitut for at få et bindende tilbud tilpasset din specifikke situation.</i>
@@ -235,10 +235,10 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
 
          <div class="card info-text" style="max-width: 800px; margin: 30px auto 0 auto;">
             <div class="card-title">Værd at vide om boligfinansiering og lån</div>
-            <p>Når du skal købe bolig eller omlægge lån, består finansieringen typisk af en kombination af forskellige låntyper. Det er afgørende at forstå forskellen på dem, da de påvirker din månedlige økonomi og din samlede risiko meget forskelligt.</p>
+            <p>Når du skal købe bolig eller omlægge lån, består finansieringen typisk af en kombination af forskellige lånetyper. Det er afgørende at forstå forskellen på dem, da de påvirker din månedlige økonomi og din samlede risiko meget forskelligt.</p>
             
             <h3>1. Banklån (Boliglån)</h3>
-            <p>Et banklån bruges typisk til at dække de næste 15 % af boligens værdi, hvis du ikke selv har pengene kontant (realkreditlånet dækker op til 80 %, og du skal selv stille med 5 %).</p>
+            <p>Et banklån bruges typisk til at dække op til 15 % af boligens værdi, hvis du ikke selv har pengene kontant (realkreditlånet kan højst dække op til 80 %, og det er et krav, at du selv kan stille med 5 %).</p>
             <ul>
                 <li><b>Højere rente:</b> Banklån har næsten altid en højere rente end realkreditlån, fordi banken løber en større risiko.</li>
                 <li><b>Kortere løbetid:</b> Løbetiden er ofte kortere – typisk mellem 10 og 20 år.</li>
@@ -247,11 +247,36 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
             
             <h3>2. Realkreditlån</h3>
             <p>Realkreditlånet er fundamentet i dansk boligfinansiering. Det udstedes mod pant i ejendommen og finansieres gennem salg af obligationer. Det er det billigste lån, du kan optage til fast ejendom.</p>
+
+            <h4>3. Bygger på obligationer – Hvad betyder kursen?</h4>
+            <p>Når du optager et realkreditlån, låner du reelt ikke pengene direkte af banken. Realkreditinstituttet udsteder i stedet <b>obligationer</b>, som investorer opkøber. Prisen på disse obligationer kaldes for <b>kursen</b>, og den har enorm betydning for din gæld – både når du optager lånet, og hvis du vil omlægge det senere.</p>
             
+            <h5>Kursen ved optagelse (Kurstab)</h5>
+            <p>Når du optager lånet, vil du helst have kursen så tæt på 100 som muligt. Hvis kursen er under 100, får du nemlig et kurstab, hvilket betyder, at din reelle gæld bliver højere end det beløb, du får udbetalt til boligen.</p>
+            
+            <div style="background: var(--bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary); margin: 15px 0;">
+                <b>Regneeksempel på kurstab:</b><br>
+                Du skal bruge <b>2.000.000 kr.</b> til et huskøb, og obligationen handles i <b>kurs 95</b>.<br><br>
+                For at få udbetalt dine 2.000.000 kr., skal du reelt stifte en gæld på:<br>
+                <code style="font-size: 1rem; font-weight: bold; color: var(--primary);">2.000.000 kr. / 0,95 = 2.105.263 kr.</code><br><br>
+                Du starter altså din lånerejse med at skylde <b>105.263 kr. mere væk</b>, end du har købt hus for. Det kaldes et kurstab.
+            </div>
+
+            <h5>Kursen ved omlægning (Skær af restgælden)</h5>
+            <p>Hvis du har valgt et lån med <b>fast rente</b>, bliver en lav kurs pludselig din bedste ven, hvis renten stiger i samfundet. Når renten stiger, falder kursen på dine gamle obligationer nemlig i værdi. Det betyder, at du kan købe din gæld tilbage billigere og &quot;skære&quot; en stor bid af din restgæld.</p>
+
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid var(--success); margin: 15px 0;">
+                <b>Regneeksempel på omlægning:</b><br>
+                Du skylder <b>2.000.000 kr.</b> væk på et fastforrentet lån. Renten stiger markant i samfundet, og kursen på dit lån falder til <b>kurs 85</b>.<br><br>
+                Hvis du omlægger lånet (indfrier det gamle), kan du købe din gæld tilbage for:<br>
+                <code style="font-size: 1rem; font-weight: bold; color: var(--success);">2.000.000 kr. x 0,85 = 1.700.000 kr.</code><br><br>
+                Du har netop <b>skåret 300.000 kr. direkte af din restgæld</b>. Du skal dog være opmærksom på, at dit nye lån vil få en højere rente, så den månedlige ydelse stiger typisk. Det er derfor en balancegang.
+            </div>
+             
             <h4>Rentesats: Fast eller variabel rente?</h4>
             <p>Du skal overveje, hvor stor en økonomisk sikkerhed du har brug for:</p>
             <ul>
-                <li><b>Fast rente:</b> Du kender din rente og månedlige ydelse i alle 30 år. Hvis renten stiger i samfundet, falder kursen på dine obligationer, hvilket giver dig mulighed for at omlægge lånet og skære en del af din restgæld væri.</li>
+                <li><b>Fast rente:</b> Du kender din rente og månedlige ydelse i hele lånets løbetid. Hvis renten stiger i samfundet, falder kursen på dine obligationer, hvilket giver dig mulighed for at omlægge lånet og skære en del af din restgæld væri.</li>
                 <li><b>Variabel rente (f.eks. F-kort, F3, F5):</b> Renten tilpasses løbende markedsrenten. Det er ofte billigere her og nu, men du løber en risiko for, at ydelsen stiger, hvis renten hopper op.</li>
             </ul>
 
