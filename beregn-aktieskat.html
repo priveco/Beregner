@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<link rel="canonical" href="https://www.simpeloekonomi.dk/" />
+<script defer src="https://cloud.umami.is/script.js" data-website-id="a661fb9a-b58c-4e1c-9ff5-ba6371a26704"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Beregn Aktieskat – Hurtig skatteberegner</title>
+<meta name="description" content="Beregn din skat af aktieindkomst og læs mere om fordele og ulemper ved at investere som frie midler, pension eller aktiesparekonto.">
+
+
+<!-- Godkendt og sikker CDN-forbindelse til grafen -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<style>
+:root { 
+    --primary: #005ea6; 
+    --primary-hover: #00447a; 
+    --success: #2e7d32; 
+    --bg: #f4f6f9; 
+    --card-bg: #ffffff; 
+    --text: #333333; 
+    --border: #e0e0e0; 
+}
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 0; margin: 0; }
+
+/* Navigation og Header */
+header { background: #ffffff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+.nav-container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 15px 20px; gap: 15px; }
+@media (min-width: 768px) { .nav-container { flex-direction: row; padding: 10px 20px; gap: 0; } }
+
+.logo { font-weight: bold; font-size: 1.3rem; color: var(--primary); }
+nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: 100%; }
+@media (min-width: 768px) { nav { width: auto; } }
+
+nav button { background: none; color: #555; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; flex: 1; min-width: 100px; text-align: center; }
+@media (min-width: 768px) { nav button { flex: none; width: auto; } }
+nav button:hover { background: #f0f2f5; color: var(--primary); }
+nav button.active { background: var(--primary); color: white; }
+
+.container { max-width: 1200px; margin: 20px auto; padding: 0 15px; box-sizing: border-box; }
+h1 { font-size: 1.5rem; text-align: center; margin-bottom: 5px; padding: 0 10px; }
+@media (min-width: 768px) { h1 { font-size: 2.2rem; } }
+.subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 0.95rem; padding: 0 10px; }
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Side-styring */
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* Layouts og Komponenter */
+.main-layout { display: grid; grid-template-columns: 1fr; gap: 25px; align-items: start; }
+@media (min-width: 768px) { .main-layout { grid-template-columns: 320px 1fr; } }
+
+.card { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 15px; box-sizing: border-box; width: 100%; max-width: 100%; overflow: hidden; }
+@media (min-width: 768px) { .card { padding: 20px; margin-bottom: 20px; } }
+
+.card-title { font-size: 1rem; font-weight: bold; margin: 0 0 12px 0; border-bottom: 2px solid var(--bg); padding-bottom: 6px; }
+@media (min-width: 768px) { .card-title { font-size: 1.1rem; margin-bottom: 15px; padding-bottom: 8px; } }
+
+label { font-weight: 600; display: block; margin-top: 10px; font-size: 0.8rem; }
+@media (min-width: 768px) { label { margin-top: 12px; font-size: 0.85rem; } }
+
+input, select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; margin-top: 4px; font-size: 0.9rem; -webkit-appearance: none; }
+@media (min-width: 768px) { input, select { padding: 11px; font-size: 1rem; } }
+
+button { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; font-size: 0.95rem; }
+@media (min-width: 768px) { button { padding: 14px; margin-top: 20px; font-size: 1rem; } }
+
+/* Resultat-kort mobiloptimering (Kompakt tekst) */
+.result-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 5px; width: 100%; }
+@media (min-width: 480px) { .result-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 992px) { .result-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.result-block { background: var(--bg); padding: 12px; border-radius: 8px; border-top: 4px solid var(--primary); box-sizing: border-box; width: 100%; max-width: 100%; }
+.result-block.success { border-top-color: var(--success); }
+.result-label { font-size: 0.75rem; color: #666; text-transform: uppercase; font-weight: bold; }
+.result-value { font-size: 1.1rem; font-weight: bold; margin-top: 4px; word-break: break-word; }
+@media (min-width: 768px) { .result-block { padding: 15px; } .result-value { font-size: 1.25rem; margin-top: 5px; } }
+
+.savings-box { background: #e8f5e9; border: 2px dashed var(--success); padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 0.85rem; }
+@media (min-width: 768px) { .savings-box { padding: 15px; margin-top: 15px; font-size: 0.95rem; } }
+
+/* Diagram beholder til tvungen skraldning */
+.chart-container { position: relative; width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden; height: 240px; }
+@media (min-width: 768px) { .chart-container { height: 320px; } }
+
+/* Tabel mobiloptimering (Scrollbar på mobilen) */
+.table-container { overflow-x: auto; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); margin-top: 15px; max-width: 100%; -webkit-overflow-scrolling: touch; }
+@media (min-width: 768px) { .table-container { margin-top: 20px; } }
+table { width: 100%; border-collapse: collapse; text-align: right; min-width: 360px; }
+th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+@media (min-width: 768px) { th, td { padding: 12px 10px; font-size: 0.9rem; } }
+th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
+@media (min-width: 768px) { th { font-size: 0.85rem; } }
+.text-success { color: var(--success); font-weight: 600; }
+
+.info-text { line-height: 1.5; color: #444; font-size: 0.85rem; }
+@media (min-width: 768px) { .info-text { line-height: 1.6; font-size: 0.95rem; } }
+.info-text h3, .info-text h4 { color: var(--primary); margin-top: 15px; margin-bottom: 5px; }
+.info-text ul { padding-left: 15px; }
+.info-text li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="nav-container">
+        <div class="logo">📈 SimpelØkonomi</div>
+        <nav>
+          <a href="/" class="nav-btn" id="link-loan">Beregn lån</a>
+          <a href="/beregn-rentefradrag.html" class="nav-btn" id="link-deduction">Beregn rentefradrag</a>
+          <a href="/beregn-aktieskat.html" class="nav-btn active" id="link-stock">Beregn aktieskat</a>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+<h1 style="text-align: center; color: var(--primary); margin-bottom: 5px;">Beregn aktieskat</h1>
+<p class="subtitle">Beregn skatteværdien af din aktieindkomst - Og læs mere om reglerne for beskatning af aktier.</p>
+
+
+
+    <!-- ================= SIDE 3: Beregn Aktieskat ================= -->
+    <section id="stock-page">
+        <h2>Beregn aktieskat</h2>
+         <div class="info-text" style="max-width: 800px; margin: 0 auto 20px auto; text-align: left; background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 15px;">
+            <p style="margin: 0; font-size: 1.05rem; font-weight: 500; color: var(--primary);">Få overblik over skatten på dine investeringer.</p>
+            <p style="margin: 0; line-height: 1.6;">Herunder kan du, ved at indtaste din forventede aktieindkomst samt depottype, se hvor meget af gevinsten du kommer til at betale i skat. Du kan også læse mere om, principperne bag beskatning af aktieindkomst. Bemærk: I beregningen antages det, at din eventuelle ægtefælle ingen aktieindkomst har.</p>
+        </div>
+        <div class="main-layout">
+            <div class="card">
+                <div class="card-title">Aktieskat-Beregner</div>
+                <label for="account-type">Kontotype / Depot</label>
+                <select id="account-type" onchange="calcStockTax()">
+                    <option value="regular">Almindeligt depot (Frie midler)</option>
+                    <option value="ask">Aktiesparekonto (ASK)</option>
+                    <option value="pension">Pensionsdepot (PAL-skat)</option>
+                </select>
+                <label for="civil-status-aktie">Civilstatus</label>
+                <select id="civil-status-aktie" onchange="calcStockTax()">
+                    <option value="single">Enlig</option>
+                    <option value="married">Gift / Samlevende</option>
+                </select>
+
+                <label for="stock-profit">Årlig aktiegevinst / kursgevinst / udbytte (kr.)</label>
+                <input id="stock-profit" type="number" value="80000">
+                <button onclick="calcStockTax()">Beregn skat</button>
+                
+                <div id="stock-result" style="margin-top:20px; display:block;">
+                    <div class="result-block" style="border-top-color: #c62828;">
+                        <div class="result-label">Skat der skal betales</div>
+                        <div id="stock-tax-value" class="result-value" style="color:#c62828;">0 kr.</div>
+                    </div>
+                    <div class="result-block success" style="margin-top:10px;">
+                        <div class="result-label">Gevinst efter skat</div>
+                        <div id="stock-net-value" class="result-value text-success">0 kr.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card info-text">
+                <div class="card-title">De forskellige beskatningsprincipper</div>
+                <p>Det er helt afgørende at kende forskel på de to måder, som dine aktieinvesteringer kan blive beskattet på i Danmark:</p>
+                
+                <h4>1. Realisationsprincippet (Almindeligt depot)</h4>
+                <p>Du betaler først skat den dag, du rent faktisk <b>sælger</b> dine aktier med gevinst, eller når du modtager udbytte. Hvis dine aktier stiger i værdi uden at du sælger, betaler du ingenting endnu.</p>
+                <ul>
+                    <li>Gevinster <b>op til 79.400 kr. (2026)</b> beskattes med <b>27% (2026)</b> (for gifte par er grænsen 158.800 kr. (2026)).</li>
+                    <li>Gevinster <b>over 79.400 kr. (2026)</b> beskattes med <b>42% (2026)</b>.</li>
+                </ul>
+
+                <h4>2. Lagerprincippet (Aktiesparekonto & Pension)</h4>
+                <p>Her afregnes skatten hvert eneste år baseret på værdien af dit depot den 31. december, <b>uanset om du har solgt eller ej</b>. Stiger dine aktier, skal du betale skat af den "fiktive" gevinst i starten af det nye år.</p>
+                <ul>
+                    <li><b>Aktiesparekonto (ASK):</b> Beskattes med en flad lagerskat på kun <b>17% (2026)</b>. Indskudsloftet er <b>174.200 kr. (2026)</b>. Fordelen ved en aktiesparekonto er, at der er tale om frie midler. Det betyder, at du kan hæve penge fra kontoen uden at betale gebyr. Du skal bare være opmærksom på, at der er loft på, hvor meget du kan sætte ind på kontoen. Så hvis du har haft nogle gode investeringer og kontoens værdi er vokset til 200.000 kr., hvorefter du vælger at hæve 50.000 kr., så kan du ikke fortryde og sætte de 50.000 kr. ind igen, idet indskudsloftet er på 174.200 kr. Du kan altså kun sætte 24.200 kr. ind igen. En aktiesparekonto er en rigtig god løsning til mange investorer, da den både har den lave beskatning samtidigt med, at der stadigvæk er tale om frie midler, der kan hæves uden gebyr.</li>
+                    <li><b>Pensionsdepot (PAL-skat):</b> Beskattes med en flad lagerskat på kun <b>15,3% (2026)</b>. Gælder f.eks. ratepension og aldersopsparing. Det kan være en god ide at oprette en pensionskonto, hvis du har stor indkomst, da indbetaling til en ratepension er fradragsberettiget - Dog kun op til  <b>68.700 kr. (2026)</b>. Så hvis du allerede indbetaler 68.700 kr. til en ratepension er der intet fradrag at hente.  Det dyrt at hæve pengene fra sin pensionskonto før tid. Typisk koster det et gebyr på 20% ved en aldersoparing og 60% ved en ratepension. (Bemærk, at de 68.700 kr. kun gælder indbetaling til ratepension. Har du indbetalinger til aldersopsparing eller livrente skal disse <b>ikke</b> regnes med.)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+
+
+// ================= SIDE 1: LÅNELOGIK =================
+
+function formatDKK(v) { return Math.round(v).toLocaleString('da-DK') + ' kr.'; }
+
+
+function calcStockTax() {
+    let profit = parseFloat(document.getElementById("stock-profit").value) || 0;
+    let accountType = document.getElementById("account-type").value;
+    let tax = 0;
+    let status = document.getElementById("civil-status-aktie").value;
+    
+    let limit = status === 'single' ? 79400 : 158800;
+    
+    if (accountType === 'regular') {
+        if (profit <= limit) {
+            tax = profit * 0.27; 
+        } else {
+            tax = (limit * 0.27) + ((profit - limit) * 0.42); 
+        }
+    } else if (accountType === 'ask') {
+        tax = profit * 0.17; 
+    } else if (accountType === 'pension') {
+        tax = profit * 0.153; 
+    }
+    
+    let netProfit = profit - tax;
+    
+    document.getElementById("stock-tax-value").innerText = formatDKK(tax);
+    document.getElementById("stock-net-value").innerText = formatDKK(netProfit);
+    document.getElementById("stock-result").style.display = "block";
+}
+
+    
+// Start beregninger ved indlæsning
+calcStockTax();
+</script>
+</body>
+</html>
