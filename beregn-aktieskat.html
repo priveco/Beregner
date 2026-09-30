@@ -107,6 +107,39 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
 .info-text h3, .info-text h4 { color: var(--primary); margin-top: 15px; margin-bottom: 5px; }
 .info-text ul { padding-left: 15px; }
 .info-text li { margin-bottom: 6px; }
+
+.nav-btn {
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    background: none;
+    color: #555;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    flex: 1;            /* Gør at knapperne fordeler sig ligeligt på mobil */
+    min-width: 100px;
+}
+
+/* Sørger for at knapperne ikke strækker sig unødigt på computerskærme */
+@media (min-width: 768px) { 
+    .nav-btn { 
+        flex: none; 
+        width: auto; 
+    } 
+}
+
+.nav-btn:hover {
+    background: #f0f2f5;
+    color: var(--primary);
+}
+
+.nav-btn.active {
+    background: var(--primary);
+    color: white;
+}
 </style>
 </head>
 <body>
