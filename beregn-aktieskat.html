@@ -55,10 +55,6 @@ h1 { font-size: 1.5rem; text-align: center; margin-bottom: 5px; padding: 0 10px;
     border: 0;
 }
 
-/* Side-styring */
-.page-section { display: none; }
-.page-section.active { display: block; }
-
 /* Layouts og Komponenter */
 .main-layout { display: grid; grid-template-columns: 1fr; gap: 25px; align-items: start; }
 @media (min-width: 768px) { .main-layout { grid-template-columns: 320px 1fr; } }
@@ -173,14 +169,14 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                 <div class="card-title">De forskellige beskatningsprincipper</div>
                 <p>Det er helt afgørende at kende forskel på de to måder, som dine aktieinvesteringer kan blive beskattet på i Danmark:</p>
                 
-                <h4>1. Realisationsprincippet (Almindeligt depot)</h4>
+                <h2>1. Realisationsprincippet (Almindeligt depot)</h2>
                 <p>Du betaler først skat den dag, du rent faktisk <b>sælger</b> dine aktier med gevinst, eller når du modtager udbytte. Hvis dine aktier stiger i værdi uden at du sælger, betaler du ingenting endnu.</p>
                 <ul>
                     <li>Gevinster <b>op til 79.400 kr. (2026)</b> beskattes med <b>27% (2026)</b> (for gifte par er grænsen 158.800 kr. (2026)).</li>
                     <li>Gevinster <b>over 79.400 kr. (2026)</b> beskattes med <b>42% (2026)</b>.</li>
                 </ul>
 
-                <h4>2. Lagerprincippet (Aktiesparekonto & Pension)</h4>
+                <h2>2. Lagerprincippet (Aktiesparekonto & Pension)</h2>
                 <p>Her afregnes skatten hvert eneste år baseret på værdien af dit depot den 31. december, <b>uanset om du har solgt eller ej</b>. Stiger dine aktier, skal du betale skat af den "fiktive" gevinst i starten af det nye år.</p>
                 <ul>
                     <li><b>Aktiesparekonto (ASK):</b> Beskattes med en flad lagerskat på kun <b>17% (2026)</b>. Indskudsloftet er <b>174.200 kr. (2026)</b>. Fordelen ved en aktiesparekonto er, at der er tale om frie midler. Det betyder, at du kan hæve penge fra kontoen uden at betale gebyr. Du skal bare være opmærksom på, at der er loft på, hvor meget du kan sætte ind på kontoen. Så hvis du har haft nogle gode investeringer og kontoens værdi er vokset til 200.000 kr., hvorefter du vælger at hæve 50.000 kr., så kan du ikke fortryde og sætte de 50.000 kr. ind igen, idet indskudsloftet er på 174.200 kr. Du kan altså kun sætte 24.200 kr. ind igen. En aktiesparekonto er en rigtig god løsning til mange investorer, da den både har den lave beskatning samtidigt med, at der stadigvæk er tale om frie midler, der kan hæves uden gebyr.</li>
@@ -229,7 +225,10 @@ function calcStockTax() {
 
     
 // Start beregninger ved indlæsning
-calcStockTax();
+document.addEventListener("DOMContentLoaded", function() {
+    calcStockTax();
+});
+
 </script>
 </body>
 </html>
