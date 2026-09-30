@@ -120,11 +120,23 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
     cursor: pointer;
     font-weight: 600;
     font-size: 0.95rem;
+    flex: 1;            /* Gør at knapperne fordeler sig ligeligt på mobil */
+    min-width: 100px;
 }
+
+/* Sørger for at knapperne ikke strækker sig unødigt på computerskærme */
+@media (min-width: 768px) { 
+    .nav-btn { 
+        flex: none; 
+        width: auto; 
+    } 
+}
+
 .nav-btn:hover {
     background: #f0f2f5;
     color: var(--primary);
 }
+
 .nav-btn.active {
     background: var(--primary);
     color: white;
