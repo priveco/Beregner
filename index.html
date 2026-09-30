@@ -5,7 +5,7 @@
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a661fb9a-b58c-4e1c-9ff5-ba6371a26704"></script>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Beregn Lån – Hurtig låneberegner</title>
 <meta name="description" content="Se hurtigt beregningen af ydelse, rente og samlet tilbagebetaling på dit lån - Og læs mere om, hvilket lån du synes passer til dig.">
 
@@ -53,10 +53,6 @@ h1 { font-size: 1.5rem; text-align: center; margin-bottom: 5px; padding: 0 10px;
     clip: rect(0, 0, 0, 0);
     border: 0;
 }
-
-/* Side-styring */
-.page-section { display: none; }
-.page-section.active { display: block; }
 
 /* Layouts og Komponenter */
 .main-layout { display: grid; grid-template-columns: 1fr; gap: 25px; align-items: start; }
@@ -238,7 +234,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
             <div class="card-title">Værd at vide om boligfinansiering og lån</div>
             <p>Når du skal købe bolig eller omlægge lån, består finansieringen typisk af en kombination af forskellige lånetyper. Det er afgørende at forstå forskellen på dem, da de påvirker din månedlige økonomi og din samlede risiko meget forskelligt.</p>
             
-            <h3>1. Banklån (Boliglån)</h3>
+            <h2>1. Banklån (Boliglån)</h2>
             <p>I forbindelse med lån til bolig bruges et banklån til at dække op til 15 % af boligens værdi, hvis du ikke selv har pengene kontant (realkreditlånet må højst dække 80 %, og det er et krav, at du selv kan stille med 5 %).</p>
             <ul>
                 <li><b>Højere rente:</b> Banklån har næsten altid en højere rente end realkreditlån, fordi banken løber en større risiko.</li>
@@ -246,10 +242,10 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                 <li><b>Variabel rente:</b> Renten er som regel variabel, hvilket betyder, at dine månedlige ydelser kan stige eller falde i takt med markedsrenten.</li>
             </ul>
             
-            <h3>2. Realkreditlån</h3>
+            <h2>2. Realkreditlån</h2>
             <p>Realkreditlånet er fundamentet i dansk boligfinansiering. Det udstedes mod pant i ejendommen og finansieres gennem salg af obligationer. Det er det billigste lån, du kan optage til fast ejendom.</p>
 
-            <h4>Realkreditlån bygger på obligationer – Hvad betyder kursen?</h4>
+            <h3>Realkreditlån bygger på obligationer – Hvad betyder kursen?</h3>
             <p>Når du optager et realkreditlån, låner du reelt ikke pengene direkte af banken. Realkreditinstituttet udsteder i stedet <b>obligationer</b>, som investorer opkøber. Prisen på disse obligationer kaldes for <b>kursen</b>, og den har enorm betydning for din gæld – både når du optager lånet, og hvis du vil omlægge det senere.</p>
             
             <p>Når du optager lånet, vil du helst have kursen så tæt på 100 som muligt. Hvis kursen er under 100, får du nemlig et kurstab, hvilket betyder, at din reelle gæld bliver højere end det beløb, du får udbetalt til boligen.</p>
@@ -262,10 +258,10 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                 Du starter altså med at skylde <b>105.263 kr. mere væk</b>, end du egentligt har fået ud af lånet. Dette kaldes et kurstab.
             </div>
 
-            <h4>Hvad betyder renten for kursen? Og hvornår kan en låneomlægning betale sig?</h4>
+            <h3>Hvad betyder renten for kursen? Og hvornår kan en låneomlægning betale sig?</h3>
             <p>Hvis du har valgt et lån med <b>fast rente</b>, kan det ved renteudsving være en fordel for dig at omlægge dit lån.</p>
              
-            <h4>Rentestigning</h4>
+            <h3>Rentestigning</h3>
             <p>Lad os sige, at du står med et realkreditlån med en fast rente på 3%. Det betyder, at de investorer, der har købt de underliggende obligationer har lånt dig penge med en garanti om, at de til gengæld får 3% årligt afkast på deres indskud. <br>
             Hvis markedsrenten stiger, og de fleste lån begynder at blive optaget til en rente på f.eks. 4%, så er det pludselig mindre attraktivt at have de obligationer, der kun giver 3% i afkast. Det betyder, at kursen på dine obligationer vil falde. <br>
             Med en lavere kurs på f.eks. 85, så kan du faktisk betale hele dit lån ved kun at betale 85% af den restgæld du har. Da du sjældent selv har så mange penge kontant, laver man i praksis det, man kalder en låneomlægning. Du optager et nyt lån, der bruges til at betale det gamle. Det betyder, at din <b>restgæld falder</b> - Men til gengæld <b>stiger renten</b> på dit lån. En sådan låneomlægning med stigende rente kaldes for en <b>opkonvertering</b>.
@@ -278,7 +274,7 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
                 Du har netop <b>skåret over 300.000 kr. direkte af din restgæld</b>. Du skal dog være opmærksom på, at dit nye lån nu har 4% i rente, så den månedlige ydelse stiger.
             </div>
              
-            <h4>Rentefald</h4>
+            <h3>Rentefald</h3>
             Ved et rentefald fungerer det lige omvendt. Hvis den generelle rente falder til 2%, vil dine 3%-obligationer blive mere attraktive og derved stige i kurs. <br>
             Men, her kommer der så en vigtig detalje. I eksemplet med rentestigning blev det billigere for dig, at betale hele dit lån på en gang, fordi kursen faldt til 85. Man skulle så tro, at det blev dyrere, at indfri et lån, når renten falder. Og det gør det faktisk også, men kun til en vis grad. Du kan nemlig altid indfri dit lån til kurs 100. Det betyder, at når renten falder, så kan du optage et nyt lån (tæt på kurs 100), men med en lavere rente end den, du i forvejen havde. <b>Restgælden bliver lidt højere end før</b>, men du kommer til at sidde med en <b>lavere rente</b>. Dette kaldes en <b>nedkonvertering</b>.
            
@@ -293,21 +289,21 @@ th { background: #f8f9fa; color: #666; font-size: 0.75rem; font-weight: bold; }
             Som man kan se ud af ovenstående eksempler, så er det især en fordel, hvis man først kan opkonvertere, for derefter at nedkonvertere igen. - Men - Der er en vigtig ting, som ikke er med i ovenstående eksempel. Din bank/realkreditinstitut opkræver en væsentlig sum penge for at lave sådan en omlægning. Det koster typisk op til <b>30.000 kr.</b> pr. omlægning. Så det er en rigtig god ide lige at regne lidt på, om det nu virkelig kan betale sig.
              
              
-            <h4>Rentesats: Fast eller variabel rente?</h4>
+            <h3>Rentesats: Fast eller variabel rente?</h3>
             <p>Du skal overveje, hvor stor en økonomisk sikkerhed du har brug for:</p>
             <ul>
-                <li><b>Fast rente:</b> Du kender din rente og månedlige ydelse i hele lånets løbetid. Hvis renten stiger i samfundet, falder kursen på dine obligationer, hvilket giver dig mulighed for at omlægge lånet og skære en del af din restgæld væri.</li>
-                <li><b>Variabel rente (f.eks. F-kort, F3, F5):</b> Renten tilpasses løbende markedsrenten. Det er ofte billigere her og nu, men du løber en risiko for, at ydelsen stiger, hvis renten hopper op.</li>
+                <li><b>Fast rente:</b> Du kender din rente og månedlige ydelse i hele lånets løbetid. Hvis renten stiger i samfundet, falder kursen på dine obligationer, hvilket giver dig mulighed for at omlægge lånet og skære en del af din restgæld væk.</li>
+                <li><b>Variabel rente (f.eks. F-kort, F3, F5):</b> Renten tilpasses løbende markedsrenten. På et F3-lån er renten låst i 3 år, på et F5-lån i 5år osv. Din rente vil være lavere på et lån med variabel rente i det øjeblik, du optager lånet. Men du løber en risiko for, at ydelsen stiger, hvis markedsrenten stiger. Så hvis du forventer sigende renter på lang sigt, så skal du ikke optage et variabeltforrentet lån.</li>
             </ul>
 
-            <h4>Afdragsfrihed – fordele og ulemper</h4>
+            <h3>Afdragsfrihed – fordele og ulemper</h3>
             <p>Mange vælger et realkreditlån med afdragsfrihed i op til 10 år (og nogle gange længere). Det betyder, at du i den valgte periode kun betaler renter og bidragssats, men ikke afdrager på selve gælden.</p>
             <ul>
                 <li><b>Fordel:</b> Du får et markant større råderum i hverdagen. Disse penge kan f.eks. bruges til at afbetale det dyrere banklån hurtigere, investere eller give luft i børnefamilie-økonomien.</li>
                 <li><b>Ulempe:</b> Lånet bliver dyrere i det lange løb, fordi du betaler renter af et højere beløb i længere tid. Derudover stiger din månedlige ydelse markant, den dag den afdragsfrie periode udløber, fordi restgælden nu skal afvikles over de resterende år (f.eks. 20 år i stedet for 30 år).</li>
             </ul>
 
-            <h4>Hvad er bidragssatsen?</h4>
+            <h3>Hvad er bidragssatsen?</h3>
             <p>Udover selve renten betaler du en <b>bidragssats</b> til realkreditinstituttet. Det er et løbende gebyr for, at de formidler lånet og administrerer obligationerne. Bidragssatsen er typisk højere, hvis du har afdragsfrihed, eller hvis du låner tæt på grænsen på de 80 %.</p>
         </div>
         
@@ -513,7 +509,10 @@ function toggleSchedule() {
 }
     
 // Start beregninger ved indlæsning
-calculate();
+document.addEventListener("DOMContentLoaded", function() {
+    calculate();
+});
+
 </script>
 </body>
 </html>
